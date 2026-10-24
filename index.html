@@ -1,0 +1,2588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>The Hunter's Trail: Cervidae & Ranch Tycoon (Master Edition)</title>
+<style>
+  :root {
+    --bg-dark: #090c08;
+    --bg-panel: #12170f;
+    --bg-panel-alt: #182014;
+    --border-color: #26331d;
+    --border-highlight: #4a5e38;
+    --text-main: #d3ddcd;
+    --text-dim: #77856d;
+    --text-bright: #f4faee;
+    --accent-gold: #cca449;
+    --accent-green: #598344;
+    --blood-red: #a82626;
+    --industrial-rust: #c26330;
+    --rare-purple: #bb86fc;
+    --god-cyan: #00e5ff;
+    --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: "Courier New", Courier, monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+  }
+
+  body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  header {
+    background: var(--bg-panel);
+    border-bottom: 2px solid var(--border-color);
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .brand-group { display: flex; flex-direction: column; }
+  .brand-title {
+    font-size: 0.88rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    color: var(--accent-gold);
+    text-transform: uppercase;
+  }
+  .brand-sub { font-size: 0.68rem; color: var(--text-dim); font-family: var(--font-mono); }
+
+  .top-stats {
+    display: flex;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    align-items: center;
+  }
+
+  .stat-badge {
+    background: #0b0f08;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    color: var(--accent-gold);
+    font-weight: bold;
+    white-space: nowrap;
+  }
+  .stat-badge.debt { color: #f06868; border-color: #551c1c; }
+
+  nav.main-nav {
+    background: #0e120b;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+  }
+  nav.main-nav::-webkit-scrollbar { display: none; }
+
+  .nav-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    padding: 10px 13px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+
+  .nav-btn.active {
+    color: var(--accent-gold);
+    border-bottom: 2px solid var(--accent-gold);
+    background: #171f12;
+  }
+  .nav-btn.god-tab { color: var(--god-cyan); }
+  .nav-btn.god-tab.active { border-bottom-color: var(--god-cyan); background: #0c2328; }
+
+  .view-container {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    padding: 12px;
+    max-width: 980px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .view-container.active { display: flex; }
+
+  .hud-dashboard {
+    background: #0f140c;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px 12px;
+    margin-bottom: 10px;
+  }
+  .hud-row { display: flex; justify-content: space-between; }
+  .hud-lbl { color: var(--text-dim); }
+  .hud-val { color: var(--text-bright); font-weight: bold; }
+  .alert-bar-box { grid-column: span 2; margin-top: 4px; }
+  .alert-bar { width: 100%; height: 6px; background: #202719; border-radius: 3px; overflow: hidden; }
+  .alert-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #598344, #cca449, #a82626); transition: width 0.3s; }
+
+  .narrative-console {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 14px;
+    min-height: 220px;
+    max-height: 46vh;
+    overflow-y: auto;
+    font-size: 0.90rem;
+    line-height: 1.6;
+    margin-bottom: 10px;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+  }
+  .narrative-console p { margin-bottom: 12px; }
+  .narrative-console p:last-child { margin-bottom: 0; }
+
+  .hl-gold { color: var(--accent-gold); font-weight: 700; }
+  .hl-blood { color: #f06868; font-weight: 700; }
+  .hl-dog { color: #84be75; font-style: italic; }
+  .hl-rare { color: var(--rare-purple); font-weight: bold; text-shadow: 0 0 4px rgba(187,134,252,0.4); }
+  .hl-rust { color: var(--industrial-rust); font-weight: 700; }
+  .hl-cyan { color: var(--god-cyan); font-weight: 700; }
+
+  .action-stack { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .btn-act {
+    background: #161d12;
+    border: 1px solid var(--border-color);
+    color: var(--text-bright);
+    padding: 11px 13px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    border-radius: 6px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  .btn-act:active { background: #2b3821; border-color: var(--accent-gold); transform: translateY(1px); }
+  .btn-act .idx { color: var(--accent-gold); font-family: var(--font-mono); font-weight: bold; min-width: 22px; }
+
+  .btn-primary {
+    background: var(--accent-green);
+    color: #fff;
+    border: none;
+    padding: 10px 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.78rem;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .btn-primary:active { background: #446435; }
+  .btn-secondary {
+    background: #21291b;
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    padding: 8px 12px;
+    font-weight: 700;
+    font-size: 0.76rem;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .btn-secondary:active { background: #313d28; }
+  .btn-god {
+    background: #005b66;
+    color: #fff;
+    border: 1px solid var(--god-cyan);
+    padding: 8px 12px;
+    font-weight: 800;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+  .btn-god:active { background: #007a8a; }
+
+  .panel-box {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+  .panel-title {
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: var(--accent-gold);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+
+  .card-item {
+    background: #10150c;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .card-title { font-weight: bold; font-size: 0.88rem; color: var(--text-bright); }
+  .card-desc { font-size: 0.76rem; color: var(--text-dim); line-height: 1.45; }
+  .card-meta { font-family: var(--font-mono); font-size: 0.74rem; color: var(--accent-gold); }
+
+  .form-group { margin-bottom: 11px; }
+  .form-group label { display: block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px; }
+  .form-group select, .form-group input, .form-group textarea {
+    width: 100%;
+    background: #0b0e08;
+    border: 1px solid var(--border-color);
+    color: var(--text-bright);
+    padding: 8px;
+    font-size: 0.82rem;
+    border-radius: 4px;
+    outline: none;
+    font-family: inherit;
+  }
+  .form-group select:focus, .form-group input:focus { border-color: var(--accent-gold); }
+
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(6, 9, 5, 0.96);
+    z-index: 200;
+    display: none;
+    flex-direction: column;
+    padding: calc(env(safe-area-inset-top) + 12px) 14px calc(env(safe-area-inset-bottom) + 12px) 14px;
+    overflow-y: auto;
+  }
+  .modal-box {
+    max-width: 720px;
+    margin: 0 auto;
+    width: 100%;
+    background: var(--bg-panel);
+    border: 2px solid var(--border-highlight);
+    border-radius: 8px;
+    padding: 18px;
+  }
+
+  .record-badge { display: inline-block; padding: 4px 8px; font-size: 0.70rem; font-weight: 800; border-radius: 4px; text-transform: uppercase; margin-bottom: 8px; }
+  .badge-world { background: #ffd700; color: #000; }
+  .badge-national { background: #d0d0d0; color: #000; }
+  .badge-state { background: #cd7f32; color: #fff; }
+  .badge-standard { background: #25311c; color: var(--text-bright); }
+
+  .manual-nav { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 12px; padding-bottom: 4px; }
+  .tab-sub-btn { background: #151b11; border: 1px solid var(--border-color); color: var(--text-dim); padding: 5px 10px; font-size: 0.72rem; font-weight: bold; border-radius: 4px; cursor: pointer; white-space: nowrap; }
+  .tab-sub-btn.active { background: var(--accent-gold); color: #000; }
+  .manual-content { font-size: 0.82rem; line-height: 1.6; color: var(--text-main); }
+  .manual-content h4 { color: var(--accent-gold); margin: 12px 0 6px 0; text-transform: uppercase; }
+  .manual-content ul { margin-left: 18px; margin-bottom: 8px; }
+
+  textarea.raw-save { font-family: var(--font-mono); font-size: 0.70rem; height: 100px; resize: none; }
+  .scout-tag { display: inline-block; background: #1c2616; padding: 2px 6px; border-radius: 3px; font-family: var(--font-mono); font-size: 0.68rem; margin: 2px; color: var(--accent-gold); }
+</style>
+</head>
+<body>
+
+  <!-- Top Global Header -->
+  <header>
+    <div class="brand-group">
+      <div class="brand-title">The Hunter's Trail</div>
+      <div class="brand-sub">Master Cervidae & Ranch Tycoon</div>
+    </div>
+    <div class="top-stats">
+      <div class="stat-badge" id="top-cash">$24,500</div>
+      <div class="stat-badge debt" id="top-debt" style="display:none;">DEBT: $0</div>
+      <div class="stat-badge" id="top-date">DAY 1 (OCT)</div>
+    </div>
+  </header>
+
+  <!-- Navigation Bar -->
+  <nav class="main-nav">
+    <button class="nav-btn active" onclick="switchView('view-hunt')">1. The Hunt</button>
+    <button class="nav-btn" onclick="switchView('view-outfitter')">2. Loadout</button>
+    <button class="nav-btn" onclick="switchView('view-ranch')">3. Land & Habitat</button>
+    <button class="nav-btn" onclick="switchView('view-finance')">4. Bank & Leases</button>
+    <button class="nav-btn" onclick="switchView('view-breeding')">5. Multi-Breed Studs</button>
+    <button class="nav-btn" onclick="switchView('view-lodge')">6. Trophy Hall</button>
+    <button class="nav-btn" onclick="switchView('view-shop')">7. Gunsmith</button>
+    <button class="nav-btn" onclick="switchView('view-manual')">8. Manual</button>
+    <button class="nav-btn god-tab" onclick="switchView('view-god')">⚡ 9. God Console</button>
+    <button class="nav-btn" onclick="switchView('view-system')">10. Save / Data</button>
+  </nav>
+
+  <!-- =========================================================================
+       VIEW 1: THE HUNT (SIMULATOR CORE)
+       ========================================================================= -->
+  <div class="view-container active" id="view-hunt">
+    <!-- Tactical HUD -->
+    <div class="hud-dashboard">
+      <div class="hud-row">
+        <span class="hud-lbl">TIME / TEMP:</span>
+        <span class="hud-val" id="hud-time-temp">06:18 AM | 27°F</span>
+      </div>
+      <div class="hud-row">
+        <span class="hud-lbl">WIND / THERMAL:</span>
+        <span class="hud-val" id="hud-wind" style="color:var(--accent-gold);">8 mph NW ↘ (Rising)</span>
+      </div>
+      <div class="hud-row">
+        <span class="hud-lbl">SECTOR / METHOD:</span>
+        <span class="hud-val" id="hud-sector">Sugar Creek Bottoms (Tree Stand)</span>
+      </div>
+      <div class="hud-row">
+        <span class="hud-lbl">STEALTH / SCENT:</span>
+        <span class="hud-val" id="hud-stealth">14 dB | 60 yds Plume</span>
+      </div>
+      <div class="hud-row">
+        <span class="hud-lbl">BLOODHOUND:</span>
+        <span class="hud-val" id="hud-dog">Copper (Watching)</span>
+      </div>
+      <div class="hud-row">
+        <span class="hud-lbl">EQUIPPED:</span>
+        <span class="hud-val" id="hud-weapon">.300 Win Mag</span>
+      </div>
+      <div class="alert-bar-box">
+        <div style="display:flex; justify-content:space-between; font-size:0.68rem; margin-bottom:2px;">
+          <span class="hud-lbl">ANIMAL ALERT METER</span>
+          <span class="hud-val" id="hud-alert-text">12% - Unaware</span>
+        </div>
+        <div class="alert-bar">
+          <div class="alert-fill" id="hud-alert-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Narrative Console -->
+    <div class="narrative-console" id="hunt-console"></div>
+
+    <!-- Tactical Actions -->
+    <div class="action-stack" id="hunt-actions"></div>
+  </div>
+
+  <!-- =========================================================================
+       VIEW 2: PRE-HUNT LOADOUT & STAGING
+       ========================================================================= -->
+  <div class="view-container" id="view-outfitter">
+    <div class="panel-box">
+      <div class="panel-title">Expedition Staging Area</div>
+      <p style="font-size:0.8rem; color:var(--text-dim); margin-bottom:14px;">Select your property destination, hunting technique, armament, and tracking canine before stepping into the field.</p>
+
+      <div class="form-group">
+        <label>Select Hunting Territory / Property</label>
+        <select id="stage-property" onchange="syncOutfitterUI()"></select>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Stand Setup / Hunting Style</label>
+          <select id="stage-stand">
+            <option value="tree_stand">Climber Tree Stand (20ft up, elevates scent above thermals)</option>
+            <option value="ground_blind">Enclosed Box Blind (85% scent containment, zero silhouette)</option>
+            <option value="stalk">Spot & Stalk (Maximum mobility, higher ground noise/scent)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Primary Weapon Platform</label>
+          <select id="stage-weapon" onchange="toggleCompoundSubPanel()"></select>
+        </div>
+      </div>
+
+      <div id="compound-tuning-box" style="display:none; background:#0f140b; border:1px solid var(--border-color); padding:12px; border-radius:6px; margin-bottom:12px;">
+        <div style="font-size:0.75rem; font-weight:bold; color:var(--accent-gold); margin-bottom:8px; text-transform:uppercase;">Compound Tuning & Attachments</div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Sight Mount</label>
+            <select id="stage-sight">
+              <option value="single_pin">Spot Hogg Single-Pin Adjustable Dial (+Aim precision)</option>
+              <option value="multi_pin">Black Gold 5-Pin Micro Gauge (+Rapid target acquisition)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Arrow Rest</label>
+            <select id="stage-rest">
+              <option value="drop_away">QAD UltraRest HDX Drop-Away (+Unimpeded fletching flight)</option>
+              <option value="whisker_biscuit">Trophy Ridge Whisker Biscuit (Rugged capture rest)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Front Stabilizer</label>
+            <select id="stage-stabilizer">
+              <option value="carbon_10">Bee Stinger 10" MicroHex Carbon (+Pin float stability)</option>
+              <option value="rubber_6">Axion 6" Rubber Dampening Rod (+Vibration dampening)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Tracking Hound Companion</label>
+          <select id="stage-dog">
+            <option value="hound_copper">Copper — Bavarian Mountain Hound (Blood Tracking Veteran)</option>
+            <option value="hound_none">Solo Expedition (No Tracking Hound)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Scent Management & Concealment</label>
+          <select id="stage-scent">
+            <option value="spray_ozonics">Ozonics In-Field Unit + Activated Charcoal Suit (-55% Scent)</option>
+            <option value="pine_dirt">Crushed Cedar & Dirt Cover Scent (-20% Scent)</option>
+            <option value="none">Zero Scent Control (Natural Human Scent Plume)</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn-primary" style="width:100%; padding:14px;" onclick="applyPreHuntAndDeploy()">Deploy to Field & Begin Hunt</button>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       VIEW 3: RANCH, TIMBER & ADVANCED HABITAT MANAGEMENT
+       ========================================================================= -->
+  <div class="view-container" id="view-ranch">
+    <div class="panel-box">
+      <div class="panel-title">Tract Portfolio & Habitat Engineering</div>
+      <p style="font-size:0.8rem; color:var(--text-dim); margin-bottom:12px;">Transform wild acreage into premier trophy sanctuaries through controlled burns, timber cuts, mineral licks, and stocking high-pedigree captive genetics directly into the wild herd.</p>
+      
+      <div id="property-list-grid" class="grid-2"></div>
+    </div>
+
+    <div class="panel-box">
+      <div class="panel-title">Real Estate Market — Land Acquisition</div>
+      <div id="real-estate-market" class="grid-2"></div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       VIEW 4: BANK FINANCING & PRIVATE LEASES
+       ========================================================================= -->
+  <div class="view-container" id="view-finance">
+    <div class="panel-box">
+      <div class="panel-title">First Ag Bank & Land Credit Facility</div>
+      <p style="font-size:0.8rem; color:var(--text-dim); margin-bottom:12px;">Borrow liquidity against your ranch equity to fund land acquisitions and high-fence infrastructure. Daily interest is compounded and billed each morning.</p>
+
+      <div class="grid-3" style="margin-bottom:14px;">
+        <div class="card-item">
+          <div class="card-lbl" style="font-size:0.7rem; color:var(--text-dim);">TOTAL OUTSTANDING DEBT</div>
+          <div id="bank-debt-display" style="font-size:1.15rem; font-weight:bold; color:#f06868;">$0</div>
+        </div>
+        <div class="card-item">
+          <div class="card-lbl" style="font-size:0.7rem; color:var(--text-dim);">DAILY ACCRUED INTEREST (0.12%/day)</div>
+          <div id="bank-interest-display" style="font-size:1.15rem; font-weight:bold; color:var(--accent-gold);">$0 / day</div>
+        </div>
+        <div class="card-item">
+          <div class="card-lbl" style="font-size:0.7rem; color:var(--text-dim);">AVAILABLE BORROWING CAPACITY</div>
+          <div id="bank-borrow-cap" style="font-size:1.15rem; font-weight:bold; color:var(--accent-green);">$150,000</div>
+        </div>
+      </div>
+
+      <div style="font-size:0.8rem; font-weight:bold; color:var(--text-bright); margin-bottom:8px; text-transform:uppercase;">Loan Issuance & Debt Paydown</div>
+      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;">
+        <button class="btn-secondary" onclick="takeBankLoan(10000)">Borrow +$10,000</button>
+        <button class="btn-secondary" onclick="takeBankLoan(50000)">Borrow +$50,000</button>
+        <button class="btn-secondary" onclick="takeBankLoan(100000)">Borrow +$100,000</button>
+        <button class="btn-secondary" onclick="repayBankDebt(10000)">Pay Down -$10,000</button>
+        <button class="btn-secondary" onclick="repayBankDebt('ALL')">Payoff Full Debt</button>
+      </div>
+    </div>
+
+    <div class="panel-box">
+      <div class="panel-title">Private Hunter Leases & Commercial Syndicates</div>
+      <p style="font-size:0.8rem; color:var(--text-dim); margin-bottom:12px;">Monetize individual tracts with targeted hunting packages. Manage balance between income and hunting pressure.</p>
+      <div id="leases-tract-grid" class="grid-2"></div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       VIEW 5: MULTI-SPECIES BREEDING & GENETIC STUD PROGRAM
+       ========================================================================= -->
+  <div class="view-container" id="view-breeding">
+    <div class="panel-box">
+      <div class="panel-title">
+        <span>High-Fence Genetics & Multi-Breed Stud Nursery</span>
+        <button class="btn-primary" style="font-size:0.72rem; padding:5px 9px;" onclick="promptAcquireBreederStock()">+ Acquire Foundation Stock</button>
+      </div>
+      <p style="font-size:0.8rem; color:var(--text-dim); margin-bottom:12px;">Breed monsters across all 8 Cervidae species. Compound antler volume, mass circumferences, and body weight across generations, then release champions into wild tracts to elevate free-range genetics!</p>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; background:#0f150b; border:1px solid var(--border-color); padding:10px 14px; border-radius:4px; margin-bottom:14px;">
+        <div>
+          <span style="font-size:0.72rem; color:var(--text-dim);">CRYO-SEMEN VAULT:</span>
+          <span class="hl-gold" id="semen-vault-count">0 Straws in Cryo-Tank</span>
+        </div>
+        <button class="btn-primary" style="padding:6px 12px; font-size:0.74rem;" onclick="sellAllSemenStraws()">Liquidate Straws on Commercial Market</button>
+      </div>
+
+      <div class="grid-2" id="breeder-herd-grid"></div>
+    </div>
+
+    <div class="panel-box">
+      <div class="panel-title">Pedigree Artificial Insemination (AI) Suite</div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Select Breeding Female (Doe / Cow / Hind)</label>
+          <select id="ai-doe-select"></select>
+        </div>
+        <div class="form-group">
+          <label>Select Cryo-Sire Semen Straw</label>
+          <select id="ai-sire-select"></select>
+        </div>
+      </div>
+      <button class="btn-secondary" style="width:100%;" onclick="executeArtificialInsemination()">Perform Ultrasound & AI Procedure ($1,400 Vet Fee)</button>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       VIEW 6: TROPHY LODGE
+       ========================================================================= -->
+  <div class="view-container" id="view-lodge">
+    <div class="panel-box">
+      <div class="panel-title">Grand Taxidermy Hall & Historical Records</div>
+      <p style="font-size:0.8rem; color:var(--text-dim); margin-bottom:12px;">All certified harvests, world records, and rare coat mutations preserved for posterity.</p>
+      <div id="lodge-records-list" class="action-stack"></div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       VIEW 7: TRADING POST & MASTER GUNSMITH
+       ========================================================================= -->
+  <div class="view-container" id="view-shop">
+    <div class="panel-box">
+      <div class="panel-title">The Master Gunsmith & Bowyer</div>
+      <div class="grid-2" id="shop-weapons-grid"></div>
+    </div>
+
+    <div class="panel-box">
+      <div class="panel-title">Field Equipment & Scent Attractants</div>
+      <div class="grid-2" id="shop-gear-grid"></div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       VIEW 8: FIELD MANUAL & TAXONOMY COMPENDIUM
+       ========================================================================= -->
+  <div class="view-container" id="view-manual">
+    <div class="panel-box">
+      <div class="panel-title">The North American & European Cervidae Compendium</div>
+      
+      <div class="manual-nav">
+        <button class="tab-sub-btn active" onclick="switchManualSubTab('man-species')">Species & Scoring</button>
+        <button class="tab-sub-btn" onclick="switchManualSubTab('man-ballistics')">Ballistics & Hitboxes</button>
+        <button class="tab-sub-btn" onclick="switchManualSubTab('man-spoor')">Blood Spoor & Tracking</button>
+        <button class="tab-sub-btn" onclick="switchManualSubTab('man-ranch')">Loans, Leases & Burns</button>
+        <button class="tab-sub-btn" onclick="switchManualSubTab('man-genetics')">Generational Breeding</button>
+      </div>
+
+      <div class="manual-content" id="manual-sub-content"></div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       VIEW 9: GOD MODE CONSOLE & TESTING SUITE
+       ========================================================================= -->
+  <div class="view-container" id="view-god">
+    <div class="panel-box" style="border-color:var(--god-cyan);">
+      <div class="panel-title" style="color:var(--god-cyan);">
+        <span>⚡ Omnipotent Sandbox & Mechanics Debug Suite</span>
+        <span style="font-size:0.7rem; color:var(--text-dim); font-family:var(--font-mono);">GOD ENGINE V3.0</span>
+      </div>
+      <p style="font-size:0.8rem; color:var(--text-dim); margin-bottom:12px;">Instantly test and verify animal behavior, terminal ballistics, generational genetic scaling, economic systems, and loan mechanics.</p>
+
+      <div class="panel-box" style="background:#0b1418; border-color:#1c3942; margin-bottom:12px;">
+        <div style="font-size:0.78rem; font-weight:bold; color:var(--god-cyan); margin-bottom:8px; text-transform:uppercase;">Immediate Financial & State Overrides</div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          <button class="btn-god" onclick="godAddCash(50000)">+ $50,000 Cash</button>
+          <button class="btn-god" onclick="godAddCash(500000)">+ $500,000 Cash</button>
+          <button class="btn-god" onclick="godClearDebt()">Zero Out All Debt ($0)</button>
+          <button class="btn-god" onclick="godUnlockAllLand()">Unlock & Improve All Land</button>
+          <button class="btn-god" onclick="godUnlockAllGuns()">Unlock Every Weapon</button>
+          <button class="btn-god" onclick="godAddSemenVault()">+50 Legendary Semen Straws</button>
+        </div>
+      </div>
+
+      <div class="panel-box" style="background:#0b1418; border-color:#1c3942; margin-bottom:12px;">
+        <div style="font-size:0.78rem; font-weight:bold; color:var(--god-cyan); margin-bottom:8px; text-transform:uppercase;">Hunting & Ballistic Mechanics Toggles</div>
+        <div class="grid-3">
+          <button class="btn-secondary" id="toggle-god-stealth" onclick="godToggleStealth()">Ghost Stealth: OFF</button>
+          <button class="btn-secondary" id="toggle-god-aim" onclick="godToggleAim()">100% Deadeye Precision: OFF</button>
+          <button class="btn-secondary" id="toggle-god-spook" onclick="godToggleFreeze()">Freeze Animal Alert: OFF</button>
+        </div>
+      </div>
+
+      <div class="panel-box" style="background:#0b1418; border-color:#1c3942; margin-bottom:12px;">
+        <div style="font-size:0.78rem; font-weight:bold; color:var(--god-cyan); margin-bottom:8px; text-transform:uppercase;">Trophy Beast Forge (Custom Quarry Spawner)</div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Species Selection</label>
+            <select id="god-spawn-species"></select>
+          </div>
+          <div class="form-group">
+            <label>Coat Phenotype</label>
+            <select id="god-spawn-fur">
+              <option value="standard">Standard Regional Dun / Brown</option>
+              <option value="albino">True Pink-Eyed Albino (Ultra-Rare)</option>
+              <option value="melanistic">Melanistic Obsidian Black (Ultra-Rare)</option>
+              <option value="piebald">Piebald Calico Blotched (Rare)</option>
+              <option value="leucistic">Ghost Leucistic (Rare)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Antler Gross Score (Inches)</label>
+            <input type="number" id="god-spawn-score" value="215" step="1">
+          </div>
+          <div class="form-group">
+            <label>Body Live Mass (Pounds)</label>
+            <input type="number" id="god-spawn-weight" value="285" step="5">
+          </div>
+        </div>
+        <button class="btn-god" style="width:100%; margin-top:4px;" onclick="godExecuteCustomSpawn()">Spawn Beast in Field & Teleport to Hunt</button>
+      </div>
+
+      <div class="panel-box" style="background:#0b1418; border-color:#1c3942; margin-bottom:12px;">
+        <div style="font-size:0.78rem; font-weight:bold; color:var(--god-cyan); margin-bottom:8px; text-transform:uppercase;">Time & Generational Leap</div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          <button class="btn-god" onclick="godAdvanceDays(1)">+ Fast Forward 1 Day (Daily Accrual)</button>
+          <button class="btn-god" onclick="godAdvanceDays(7)">+ Fast Forward 1 Week (7 Days)</button>
+          <button class="btn-god" onclick="godAdvanceDays(30)">+ Fast Forward 1 Month (Deliver Fawns / Royalties)</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>God Command Terminal</label>
+        <div style="display:flex; gap:6px;">
+          <input type="text" id="god-cli-input" placeholder="e.g. /cash 100000, /spawn elk albino 420 950, /clear_debt, /kill" onkeydown="if(event.key==='Enter') godRunCommand()">
+          <button class="btn-god" onclick="godRunCommand()">Execute</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       VIEW 10: SYSTEM, SAVE & LOAD
+       ========================================================================= -->
+  <div class="view-container" id="view-system">
+    <div class="panel-box">
+      <div class="panel-title">Save / Load Game States (Offline & Cloud Transfer)</div>
+      <p style="font-size:0.8rem; color:var(--text-dim); margin-bottom:12px;">Your progress auto-saves locally on this device. You can export your save as a text string to backup or transfer between desktop and mobile devices.</p>
+
+      <div class="form-group">
+        <label>Save Export / Import Raw Data</label>
+        <textarea class="raw-save" id="raw-save-box" placeholder="Your save string will appear here..."></textarea>
+      </div>
+
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
+        <button class="btn-primary" onclick="exportSaveData()">Generate Export Code</button>
+        <button class="btn-secondary" onclick="importSaveData()">Load From Text Box</button>
+        <button class="btn-secondary" onclick="manualLocalSave()">Quick Save Slot</button>
+      </div>
+
+      <div style="border-top:1px solid var(--border-color); padding-top:12px;">
+        <button class="btn-secondary" style="border-color:#5a2323; color:#e07b7b;" onclick="resetEntireGame()">Factory Reset All Game Data</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODALS: HARVEST DOSSIER
+       ========================================================================= -->
+  <div class="modal-overlay" id="dossier-modal">
+    <div class="modal-box">
+      <div class="panel-title">Official Boone & Crockett Field Dossier</div>
+      <div id="dossier-dynamic-body"></div>
+      <button class="btn-primary" style="width:100%; margin-top:14px;" onclick="claimHarvestAndMount()">Mount in Grand Trophy Lodge</button>
+    </div>
+  </div>
+
+<script>
+/* =========================================================================
+   COMPREHENSIVE CERVIDAE TAXONOMY & SPECIES DATABASE
+   ========================================================================= */
+
+const SPECIES_DB = {
+  whitetail: {
+    name: "Whitetail Deer",
+    scientific: "Odocoileus virginianus",
+    habitats: ["Hardwood Ridge", "Cornfield Edge", "River Cedar Thicket"],
+    weightMin: 140, weightMax: 260,
+    furTypes: [
+      { name: "Autumn Dun / Fawn", chance: 0.88, rare: false },
+      { name: "Piebald (Calico Blotched)", chance: 0.06, rare: true },
+      { name: "Melanistic (Jet Black)", chance: 0.03, rare: true },
+      { name: "True Pink-Eyed Albino", chance: 0.02, rare: true },
+      { name: "Ghost Leucistic", chance: 0.01, rare: true }
+    ],
+    scoreMin: 120, scoreMax: 175,
+    stateRecord: 185.0, nationalRecord: 202.0, worldRecord: 213.625,
+    scoringType: "B&C Spread, Tines (G1-G5) & Mass"
+  },
+  mule_deer: {
+    name: "Rocky Mountain Mule Deer",
+    scientific: "Odocoileus hemionus",
+    habitats: ["Sagebrush Coulee", "Rimrock Basin", "Quaking Aspen Chute"],
+    weightMin: 180, weightMax: 320,
+    furTypes: [
+      { name: "High Desert Silver-Grey", chance: 0.89, rare: false },
+      { name: "Piebald Muley", chance: 0.05, rare: true },
+      { name: "Melanistic Obsidian", chance: 0.03, rare: true },
+      { name: "True Albino", chance: 0.02, rare: true },
+      { name: "Velvet Persistent (Cactus Buck)", chance: 0.01, rare: true }
+    ],
+    scoreMin: 140, scoreMax: 198,
+    stateRecord: 205.0, nationalRecord: 220.0, worldRecord: 226.5,
+    scoringType: "B&C Bifurcated Deep Fork Index"
+  },
+  blacktail: {
+    name: "Columbian Blacktail Deer",
+    scientific: "Odocoileus hemionus columbianus",
+    habitats: ["Pacific Coast Rainforest", "Salal Brush Bench", "Clearcut Edge"],
+    weightMin: 120, weightMax: 210,
+    furTypes: [
+      { name: "Coastal Grizzled Brown", chance: 0.90, rare: false },
+      { name: "Piebald Coastal", chance: 0.05, rare: true },
+      { name: "Chocolate Rainforest", chance: 0.03, rare: true },
+      { name: "Ghost Albino", chance: 0.02, rare: true }
+    ],
+    scoreMin: 95, scoreMax: 148,
+    stateRecord: 152.0, nationalRecord: 168.0, worldRecord: 182.25,
+    scoringType: "B&C Symmetrical Antler Index"
+  },
+  elk: {
+    name: "Rocky Mountain Elk",
+    scientific: "Cervus canadensis nelsoni",
+    habitats: ["Subalpine Basin", "Dark Timber Draw", "Avalanche Meadow"],
+    weightMin: 620, weightMax: 980,
+    furTypes: [
+      { name: "Golden Tan with Dark Mane", chance: 0.90, rare: false },
+      { name: "Flaxen Blonde", chance: 0.04, rare: true },
+      { name: "Ghost Leucistic", chance: 0.03, rare: true },
+      { name: "Melanistic Timber Bull", chance: 0.02, rare: true },
+      { name: "Pure Albino Sovereign", chance: 0.01, rare: true }
+    ],
+    scoreMin: 270, scoreMax: 375,
+    stateRecord: 388.0, nationalRecord: 412.0, worldRecord: 442.5,
+    scoringType: "B&C 6x6 Beam, Mass & Sword Points"
+  },
+  moose: {
+    name: "Yukon / Alaska Moose",
+    scientific: "Alces alces gigas",
+    habitats: ["Willow River Flats", "Black Spruce Bog", "Glacial Valley"],
+    weightMin: 1000, weightMax: 1720,
+    furTypes: [
+      { name: "Sable Black-Brown", chance: 0.91, rare: false },
+      { name: "Piebald Grey-Blotched", chance: 0.04, rare: true },
+      { name: "Golden Dun", chance: 0.03, rare: true },
+      { name: "Pure Arctic Albino", chance: 0.02, rare: true }
+    ],
+    scoreMin: 170, scoreMax: 238,
+    stateRecord: 238.0, nationalRecord: 250.0, worldRecord: 261.5,
+    scoringType: "B&C Palmation Width, Spread & Points"
+  },
+  fallow: {
+    name: "European Fallow Deer",
+    scientific: "Dama dama",
+    habitats: ["Ancient Oak Wood", "Lekking Glade", "Bracken Heath"],
+    weightMin: 130, weightMax: 220,
+    furTypes: [
+      { name: "Common Spotted (Chestnut/White)", chance: 0.65, rare: false },
+      { name: "Menil (Cream Dotted)", chance: 0.20, rare: false },
+      { name: "Melanistic Pitch", chance: 0.08, rare: true },
+      { name: "White Hart (Leucistic)", chance: 0.05, rare: true },
+      { name: "True Pink-Eyed Albino", chance: 0.02, rare: true }
+    ],
+    scoreMin: 150, scoreMax: 218,
+    stateRecord: 222.0, nationalRecord: 238.0, worldRecord: 254.0,
+    scoringType: "CIC / SCI Broad Palmation Spades"
+  },
+  red_stag: {
+    name: "Highland Red Stag",
+    scientific: "Cervus elaphus",
+    habitats: ["Highland Heather Glen", "Pine Plantation", "Peat Bog Wallow"],
+    weightMin: 340, weightMax: 560,
+    furTypes: [
+      { name: "Rufous Red with Dark Ruff", chance: 0.88, rare: false },
+      { name: "Golden Russet", chance: 0.05, rare: true },
+      { name: "Piebald Highland", chance: 0.04, rare: true },
+      { name: "Royal White Hart", chance: 0.03, rare: true }
+    ],
+    scoreMin: 220, scoreMax: 365,
+    stateRecord: 375.0, nationalRecord: 405.0, worldRecord: 450.0,
+    scoringType: "CIC Royal Imperial Crown & Tines"
+  },
+  axis_deer: {
+    name: "Axis Deer (Chital)",
+    scientific: "Axis axis",
+    habitats: ["Texas Live Oak Savannah", "Riverine Scrub", "Grassland Fringe"],
+    weightMin: 140, weightMax: 250,
+    furTypes: [
+      { name: "Bright Rufous with Lifelong White Spots", chance: 0.94, rare: false },
+      { name: "Melanistic Midnight", chance: 0.03, rare: true },
+      { name: "Leucistic Cream", chance: 0.02, rare: true },
+      { name: "True Albino", chance: 0.01, rare: true }
+    ],
+    scoreMin: 125, scoreMax: 168,
+    stateRecord: 172.0, nationalRecord: 180.0, worldRecord: 188.5,
+    scoringType: "SCI 3x3 Lyre-Shaped Main Beam"
+  }
+};
+
+const WEAPONS_CATALOG = {
+  rifle_243: { name: "Sako 85 Bavarian — .243 Win", cost: 1600, type: "rifle", desc: "100gr Nosler Partition. Flat shooting, light recoil; deadly on Whitetail & Blacktail." },
+  rifle_65cm: { name: "Christensen Arms Mesa — 6.5 Creedmoor", cost: 1850, type: "rifle", desc: "143gr ELD-X. Modern high ballistic coefficient long-range precision." },
+  rifle_270: { name: "Winchester Model 70 Featherweight — .270 Win", cost: 1450, type: "rifle", desc: "130gr Ballistic Tip. Classic Jack O'Connor big timber velocity." },
+  rifle_308: { name: "Tikka T3x Hunter — .308 Win", cost: 1250, type: "rifle", desc: "168gr Barnes TTSX Monolithic. Short action efficiency with bone-smashing punch." },
+  rifle_3006: { name: "Remington 700 CDL — .30-06 Sprg", cost: 1300, type: "rifle", desc: "180gr Core-Lokt. The all-American universal big timber cartridge." },
+  rifle_300wm: { name: "Browning X-Bolt Pro — .300 Win Mag", cost: 2200, type: "rifle", desc: "200gr ELD-X. Heavy magnum kinetic delivery for giant bulls, stags, and moose." },
+  rifle_338: { name: "Sako TRG-42 — .338 Lapua Mag", cost: 4200, type: "rifle", desc: "250gr Scenar. Sub-MOA kinetic sledgehammer that anchors Yukon moose across canyons." },
+  rifle_4570: { name: "Marlin 1895 Guide Gun — .45-70 Govt", cost: 1400, type: "rifle", desc: "325gr FTX LeverEvolution. Heavy brush gun for willow flats." },
+  bow_longbow: { name: "Northern Mist Custom Longbow (58# @ 28\")", cost: 950, type: "bow_trad", desc: "Port Orford Cedar shafts with 2-blade Zwickey broadheads. Pure traditional instinct." },
+  bow_recurve: { name: "Bear Grizzly Takedown Recurve (55# @ 28\")", cost: 800, type: "bow_trad", desc: "Fast carbon arrows with cut-on-contact Magnus Stingers." },
+  bow_compound: { name: "Mathews V3X 29 Compound Bow (70#, 85% Let-off)", cost: 1550, type: "bow_compound", desc: "Machined aluminum riser, whisper-quiet cams, adjustable sight/rest/stabilizers." }
+};
+
+const PROPERTIES_CATALOG = [
+  {
+    id: "prop_texas",
+    name: "Brush Country Ranch (Dimmit Co, TX)",
+    acres: 600,
+    cost: 45000,
+    region: "Texas Brush Country",
+    desc: "Thick mesquite, prickly pear, and high mineral protein. Ideal for high-fence Whitetail & Axis deer breeding, plus deep oil/gas shale.",
+    mineralPotential: 1800,
+    fracked: false,
+    highFenced: false,
+    foodPlots: 0,
+    prescribedBurn: false,
+    timberThinned: false,
+    mineralLicks: false,
+    trailCams: false,
+    geneticScoreBonus: 0,
+    geneticMassBonus: 0,
+    activeLease: "none"
+  },
+  {
+    id: "prop_iowa",
+    name: "Sugar Creek River Bottoms (Albia, IA)",
+    acres: 850,
+    cost: 85000,
+    region: "Midwest River Bottoms",
+    desc: "Rich river bottom soils bordering agricultural corn and soybeans. The epicenter for 200\"+ free-range wild Whitetail genetics.",
+    mineralPotential: 600,
+    fracked: false,
+    highFenced: false,
+    foodPlots: 1,
+    prescribedBurn: false,
+    timberThinned: false,
+    mineralLicks: false,
+    trailCams: false,
+    geneticScoreBonus: 0,
+    geneticMassBonus: 0,
+    activeLease: "none"
+  },
+  {
+    id: "prop_colorado",
+    name: "San Juan Alpine Basin (Ouray, CO)",
+    acres: 1400,
+    cost: 135000,
+    region: "Colorado Timber Basin",
+    desc: "Steep quaking aspens, dark timber, and avalanche glades. Premier sanctuary for bugling Rocky Mountain Elk and massive Mule Deer.",
+    mineralPotential: 900,
+    fracked: false,
+    highFenced: false,
+    foodPlots: 0,
+    prescribedBurn: false,
+    timberThinned: false,
+    mineralLicks: false,
+    trailCams: false,
+    geneticScoreBonus: 0,
+    geneticMassBonus: 0,
+    activeLease: "none"
+  },
+  {
+    id: "prop_yukon",
+    name: "Stewart River Boreal Tract (Mayo, YT)",
+    acres: 2800,
+    cost: 210000,
+    region: "Yukon Boreal Taiga",
+    desc: "Untamed willow river oxbows and spruce bogs. Roaming grounds for 70\" Yukon Moose and wild Columbian Blacktail.",
+    mineralPotential: 2400,
+    fracked: false,
+    highFenced: false,
+    foodPlots: 0,
+    prescribedBurn: false,
+    timberThinned: false,
+    mineralLicks: false,
+    trailCams: false,
+    geneticScoreBonus: 0,
+    geneticMassBonus: 0,
+    activeLease: "none"
+  }
+];
+
+// Master Game State
+let GameState = {
+  cash: 24500,
+  debt: 0,
+  day: 1,
+  timeMinutes: 378, // 06:18 AM
+  tempF: 27,
+  windSpeed: 8,
+  windDir: "NW",
+  thermals: "Rising Uphill",
+  
+  // Inventory & Loadout
+  ownedWeapons: ["rifle_300wm", "bow_compound"],
+  equippedWeapon: "rifle_300wm",
+  attachments: {
+    sight: "single_pin",
+    rest: "drop_away",
+    stabilizer: "carbon_10"
+  },
+  standMethod: "tree_stand",
+  hound: "hound_copper",
+  scentGear: "spray_ozonics",
+
+  // Real Estate Portfolio
+  ownedProperties: [
+    {
+      id: "prop_iowa",
+      name: "Sugar Creek River Bottoms (Albia, IA)",
+      acres: 850,
+      region: "Midwest River Bottoms",
+      fracked: false,
+      highFenced: false,
+      foodPlots: 1,
+      prescribedBurn: false,
+      timberThinned: false,
+      mineralLicks: false,
+      trailCams: true,
+      geneticScoreBonus: 0,
+      geneticMassBonus: 0,
+      activeLease: "none"
+    }
+  ],
+  activePropertyId: "prop_iowa",
+
+  // Multi-Breed Breeding Program
+  breedingHerd: [
+    {
+      id: "buck_titan",
+      name: "Goliath II (Sire)",
+      species: "whitetail",
+      sex: "buck",
+      generation: 1,
+      ageYears: 4.5,
+      pedigreeScore: 298.5,
+      bodyWeight: 275,
+      traits: ["Drop-Tines", "Massive Palmation", "Double Brow Tines"],
+      strawsCollected: 12
+    },
+    {
+      id: "doe_clover",
+      name: "Clover Princess (Dam)",
+      species: "whitetail",
+      sex: "doe",
+      generation: 1,
+      ageYears: 3.5,
+      pedigreeScore: 220.0,
+      bodyWeight: 175,
+      traits: ["High Milk Yield", "200\" Pedigree Lineage"],
+      pregnant: false,
+      fawnDueDate: null
+    },
+    {
+      id: "bull_timber",
+      name: "Thunder Bull (Sire)",
+      species: "elk",
+      sex: "buck",
+      generation: 1,
+      ageYears: 5.5,
+      pedigreeScore: 395.0,
+      bodyWeight: 910,
+      traits: ["Heavy Sword Points", "Titan Main Beams"],
+      strawsCollected: 8
+    },
+    {
+      id: "cow_aspen",
+      name: "Aspen Queen (Dam)",
+      species: "elk",
+      sex: "doe",
+      generation: 1,
+      ageYears: 4.0,
+      pedigreeScore: 340.0,
+      bodyWeight: 670,
+      traits: ["Subalpine Hardiness", "Trophy Genetics"],
+      pregnant: false,
+      fawnDueDate: null
+    }
+  ],
+  semenVault: [
+    { id: "straw_1", species: "whitetail", sireName: "Goliath II", score: 298.5, weight: 275 },
+    { id: "straw_2", species: "elk", sireName: "Thunder Bull", score: 395.0, weight: 910 }
+  ],
+
+  // Hunting Encounters
+  quarry: null,
+  distanceYards: 0,
+  alertness: 0,
+  shotMade: null,
+  bloodTrail: null,
+
+  // Records
+  trophyLodge: [],
+
+  // God Mode Testing Flags
+  godMode: {
+    stealth: false,
+    deadeye: false,
+    freezeAlert: false
+  }
+};
+
+/* =========================================================================
+   PERSISTENCE & SAVE/LOAD SYSTEM
+   ========================================================================= */
+
+function autoSave() {
+  try {
+    localStorage.setItem("hunters_trail_master_save", JSON.stringify(GameState));
+  } catch (e) { console.error("AutoSave Error:", e); }
+}
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem("hunters_trail_master_save");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      GameState = Object.assign(GameState, parsed);
+    }
+  } catch (e) { console.error("Load Error:", e); }
+}
+
+function exportSaveData() {
+  autoSave();
+  const raw = btoa(unescape(encodeURIComponent(JSON.stringify(GameState))));
+  document.getElementById("raw-save-box").value = raw;
+  alert("Save string generated! Copy to backup your hunting empire.");
+}
+
+function importSaveData() {
+  const val = document.getElementById("raw-save-box").value.trim();
+  if (!val) { alert("Paste a valid save string first!"); return; }
+  try {
+    const decoded = JSON.parse(decodeURIComponent(escape(atob(val))));
+    GameState = decoded;
+    autoSave();
+    alert("Save data loaded successfully!");
+    location.reload();
+  } catch (e) {
+    alert("Invalid or corrupted save string.");
+  }
+}
+
+function manualLocalSave() {
+  autoSave();
+  alert("Progress saved locally!");
+}
+
+function resetEntireGame() {
+  if (confirm("Permanently wipe all ranches, herd genetics, and trophy mounts?")) {
+    localStorage.removeItem("hunters_trail_master_save");
+    location.reload();
+  }
+}
+
+/* =========================================================================
+   UI & TAB NAVIGATION CONTROLLER
+   ========================================================================= */
+
+function switchView(viewId) {
+  document.querySelectorAll(".view-container").forEach(el => el.classList.remove("active"));
+  document.querySelectorAll(".nav-btn").forEach(el => el.classList.remove("active"));
+  
+  const target = document.getElementById(viewId);
+  if (target) target.classList.add("active");
+
+  const btnIndex = {
+    'view-hunt': 0, 'view-outfitter': 1, 'view-ranch': 2, 'view-finance': 3,
+    'view-breeding': 4, 'view-lodge': 5, 'view-shop': 6, 'view-manual': 7,
+    'view-god': 8, 'view-system': 9
+  }[viewId];
+  if (btnIndex !== undefined) {
+    document.querySelectorAll(".nav-btn")[btnIndex].classList.add("active");
+  }
+
+  // Refresh Specific UI Views
+  if (viewId === 'view-ranch') renderRanchView();
+  if (viewId === 'view-finance') renderFinanceView();
+  if (viewId === 'view-breeding') renderBreedingView();
+  if (viewId === 'view-lodge') renderLodgeView();
+  if (viewId === 'view-shop') renderShopView();
+  if (viewId === 'view-outfitter') syncOutfitterUI();
+  if (viewId === 'view-god') renderGodModeView();
+  if (viewId === 'view-manual') renderManualText('man-species');
+  updateGlobalHeader();
+}
+
+function updateGlobalHeader() {
+  document.getElementById("top-cash").innerText = `$${Math.floor(GameState.cash).toLocaleString()}`;
+  const debtEl = document.getElementById("top-debt");
+  if (GameState.debt > 0) {
+    debtEl.style.display = "inline-block";
+    debtEl.innerText = `DEBT: $${Math.floor(GameState.debt).toLocaleString()}`;
+  } else {
+    debtEl.style.display = "none";
+  }
+  document.getElementById("top-date").innerText = `DAY ${GameState.day} (OCT)`;
+}
+
+/* =========================================================================
+   PROCEDURAL HUNTING ENGINE WITH GENETIC SCALING
+   ========================================================================= */
+
+function generateAnimalEncounter(customQuarry = null) {
+  if (customQuarry) {
+    GameState.quarry = customQuarry;
+    GameState.distanceYards = 45;
+    GameState.alertness = 0;
+    GameState.bloodTrail = null;
+    GameState.shotMade = null;
+    updateHuntHUD();
+    renderEncounterIntro();
+    return;
+  }
+
+  const activeProp = GameState.ownedProperties.find(p => p.id === GameState.activePropertyId) || GameState.ownedProperties[0];
+  
+  // Species selection based on property geography
+  let possibleSpecies = ["whitetail"];
+  if (activeProp.region.includes("Texas")) possibleSpecies = ["whitetail", "axis_deer", "fallow"];
+  if (activeProp.region.includes("Midwest")) possibleSpecies = ["whitetail", "fallow"];
+  if (activeProp.region.includes("Colorado")) possibleSpecies = ["elk", "mule_deer"];
+  if (activeProp.region.includes("Yukon")) possibleSpecies = ["moose", "blacktail"];
+
+  const specKey = possibleSpecies[Math.floor(Math.random() * possibleSpecies.length)];
+  const spec = SPECIES_DB[specKey];
+
+  // Coat Roll
+  let fur = spec.furTypes[0];
+  const randFur = Math.random();
+  let cum = 0;
+  for (let f of spec.furTypes) {
+    cum += f.chance;
+    if (randFur <= cum) { fur = f; break; }
+  }
+
+  // Antler and body scaling based on ranch improvements & wild released genetics
+  let scoreBoost = (activeProp.foodPlots * 12) + 
+                   (activeProp.mineralLicks ? 15 : 0) + 
+                   (activeProp.timberThinned ? 8 : 0) + 
+                   (activeProp.highFenced ? 25 : 0) + 
+                   activeProp.geneticScoreBonus;
+
+  let massBoost = (activeProp.prescribedBurn ? 25 : 0) + 
+                  (activeProp.foodPlots * 10) + 
+                  activeProp.geneticMassBonus;
+
+  const roll = Math.random();
+  let score = 0;
+  let recordTier = "OFFICIAL ENTRY";
+
+  if (roll > 0.9985) {
+    score = +(spec.worldRecord + (Math.random() * 8 + 0.5) + (scoreBoost * 0.2)).toFixed(3);
+    recordTier = "WORLD RECORD";
+  } else if (roll > 0.9920) {
+    score = +(spec.nationalRecord + (Math.random() * (spec.worldRecord - spec.nationalRecord)) + (scoreBoost * 0.15)).toFixed(2);
+    recordTier = "NATIONAL RECORD";
+  } else if (roll > 0.9650) {
+    score = +(spec.stateRecord + (Math.random() * (spec.nationalRecord - spec.stateRecord)) + (scoreBoost * 0.1)).toFixed(2);
+    recordTier = "STATE RECORD";
+  } else {
+    const spread = spec.scoreMax - spec.scoreMin;
+    score = +(spec.scoreMin + (Math.random() * 0.7 + Math.random() * 0.3) * spread + scoreBoost).toFixed(2);
+  }
+
+  const weight = Math.floor(spec.weightMin + Math.random() * (spec.weightMax - spec.weightMin) + massBoost);
+  const habitat = spec.habitats[Math.floor(Math.random() * spec.habitats.length)];
+  
+  const angles = [
+    "Broadside (Left to Right)",
+    "Broadside (Right to Left)",
+    "Slight Quartering-Away",
+    "Hard Quartering-Away",
+    "Quartering-To (Tight shoulder crease)",
+    "Bedded Down (Chest protected by fallen spruce)"
+  ];
+  const targetAngle = angles[Math.floor(Math.random() * angles.length)];
+
+  // Rack metrics
+  let pL = 5, pR = 5;
+  if (specKey === 'elk' || specKey === 'red_stag') {
+    pL = Math.floor(Math.random() * 3) + 5; pR = Math.random() > 0.3 ? pL : pL - 1;
+  } else {
+    pL = Math.floor(Math.random() * 3) + 4; pR = Math.random() > 0.25 ? pL : pL + 1;
+  }
+
+  // Alertness calculations
+  let startAlert = Math.floor(Math.random() * 15) + 5;
+  if (activeProp.fracked) startAlert += 28; // Fracking rigs nearby put wild game on edge
+  if (activeProp.activeLease === 'gun_club') startAlert += 20; // High hunter pressure
+  if (GameState.godMode.freezeAlert) startAlert = 0;
+
+  GameState.quarry = {
+    specKey, spec, fur, weight, habitat, score, recordTier,
+    points: `${pL}x${pR}`,
+    spread: (specKey === 'moose' ? 48 + Math.random() * 18 : 16 + Math.random() * 8 + (activeProp.mineralLicks ? 3 : 0)).toFixed(1),
+    beam: (specKey === 'elk' ? 46 + Math.random() * 12 : 21 + Math.random() * 6).toFixed(1),
+    targetAngle
+  };
+
+  GameState.alertness = startAlert;
+  GameState.distanceYards = GameState.standMethod === 'stalk' ? Math.floor(Math.random() * 90) + 110 : (GameState.standMethod === 'tree_stand' ? Math.floor(Math.random() * 25) + 20 : Math.floor(Math.random() * 45) + 30);
+  GameState.bloodTrail = null;
+  GameState.shotMade = null;
+
+  updateHuntHUD();
+  renderEncounterIntro();
+}
+
+function updateHuntHUD() {
+  const h = Math.floor(GameState.timeMinutes / 60);
+  const m = GameState.timeMinutes % 60;
+  const ampm = h >= 12 ? "PM" : "AM";
+  const dh = h % 12 === 0 ? 12 : h % 12;
+  const dm = m < 10 ? "0" + m : m;
+
+  document.getElementById("hud-time-temp").innerText = `${dh}:${dm} ${ampm} | ${GameState.tempF}°F`;
+  document.getElementById("hud-wind").innerText = `${GameState.windSpeed} mph ${GameState.windDir} ↘ (${GameState.thermals})`;
+  
+  const activeProp = GameState.ownedProperties.find(p => p.id === GameState.activePropertyId) || GameState.ownedProperties[0];
+  document.getElementById("hud-sector").innerText = `${activeProp.name.split(' (')[0]} (${GameState.standMethod.replace('_', ' ')})`;
+
+  let noise = GameState.godMode.stealth ? 0 : (GameState.standMethod === 'stalk' ? 24 : 8);
+  let plume = GameState.godMode.stealth ? 0 : (GameState.standMethod === 'ground_blind' ? 30 : (GameState.standMethod === 'tree_stand' ? 65 : 125));
+  if (GameState.scentGear === 'spray_ozonics' && !GameState.godMode.stealth) plume = Math.floor(plume * 0.45);
+  document.getElementById("hud-stealth").innerText = `${noise} dB | ${plume} yds Plume`;
+
+  document.getElementById("hud-dog").innerText = GameState.hound === 'hound_copper' ? "Copper (Ready)" : "Solo";
+  document.getElementById("hud-weapon").innerText = WEAPONS_CATALOG[GameState.equippedWeapon].name.split(' — ')[0];
+
+  document.getElementById("hud-alert-text").innerText = `${GameState.alertness}% - ${getSpookDescriptor(GameState.alertness)}`;
+  document.getElementById("hud-alert-fill").style.width = `${GameState.alertness}%`;
+}
+
+function getSpookDescriptor(val) {
+  if (val < 25) return "Unaware (Browsing)";
+  if (val < 50) return "Attentive (Ears Cupped)";
+  if (val < 75) return "Suspicious (Head High, Stamping)";
+  return "Near Flight (Coiled on Hocks)";
+}
+
+function logHunt(html) {
+  const con = document.getElementById("hunt-console");
+  con.innerHTML += `<p>${html}</p>`;
+  con.scrollTop = con.scrollHeight;
+}
+
+function renderHuntActions(actions) {
+  const container = document.getElementById("hunt-actions");
+  container.innerHTML = "";
+  actions.forEach((act, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "btn-act";
+    btn.innerHTML = `<span class="idx">[${idx + 1}]</span> <span>${act.text}</span>`;
+    btn.onclick = act.action;
+    container.appendChild(btn);
+  });
+}
+
+function renderEncounterIntro() {
+  const q = GameState.quarry;
+  const activeProp = GameState.ownedProperties.find(p => p.id === GameState.activePropertyId);
+
+  let intro = `A biting autumn chill settles over the timber drainage. `;
+  if (activeProp.fracked) {
+    intro += `<span class="hl-rust">The rhythmic mechanical clank of hydraulic fracking pumps echoes faintly off the shale bluffs.</span> `;
+  }
+  if (activeProp.activeLease === 'gun_club') {
+    intro += `<span class="hl-blood">Gun club hunters have pushed the ridges earlier this morning; quarry is noticeably edgy.</span> `;
+  }
+  if (GameState.standMethod === 'tree_stand') {
+    intro += `Perched 20 feet up a mature burr oak overlooking ${q.habitat}, your binoculars cut through rising mist. `;
+  } else if (GameState.standMethod === 'ground_blind') {
+    intro += `Concealed within a brush-blind on the edge of ${q.habitat}, you spot movement. `;
+  } else {
+    intro += `Creeping softly over damp moss and frost-crusted loam in ${q.habitat}, your glass picks out a massive frame. `;
+  }
+
+  let furTag = q.fur.rare ? `<span class="hl-rare">GENETIC MUTATION: ${q.fur.name.toUpperCase()}!</span>` : `${q.fur.name}`;
+
+  logHunt(`
+    ${intro}
+    <br><br>
+    A monarch steps into the clearing: an extraordinary mature <strong>${q.spec.name}</strong> sporting a <strong>${furTag}</strong> cape.
+    <br>
+    <strong>Antler Architecture:</strong> Heavy <strong>${q.points}</strong> frame, massive pearling, and deep beam circumference.
+    <br>
+    <strong>True Range:</strong> <span class="hl-gold">${GameState.distanceYards} yards</span> | <strong>Body Weight:</strong> ~${q.weight} lbs | <strong>Angle:</strong> ${q.targetAngle}.
+  `);
+
+  offerStandardHuntDecisions();
+}
+
+function offerStandardHuntDecisions() {
+  const isBow = GameState.equippedWeapon.includes("bow");
+  const actions = [
+    {
+      text: `Glass through 10x42 Optics & Read Wind Plume`,
+      action: () => actionGlassAndWind()
+    },
+    {
+      text: isBow 
+        ? `Draw bow & lock release to anchor point (${GameState.distanceYards} yds)` 
+        : `Brace rifle on shooting rail & settle reticle (${GameState.distanceYards} yds)`,
+      action: () => enterTargetAimMode()
+    }
+  ];
+
+  if (GameState.standMethod === 'stalk') {
+    actions.push({
+      text: `Drop into hands-and-knees belly crawl to close distance (-30 yds)`,
+      action: () => actionCrawlCloser()
+    });
+  }
+
+  actions.push({
+    text: `Work Call Suite (Can Call / Deep Grunts / Rattling Horns)`,
+    action: () => actionUseCalls()
+  });
+
+  if (GameState.hound === 'hound_copper') {
+    actions.push({
+      text: `Observe Hound Copper's scent stance & thermal alert`,
+      action: () => actionConsultHound()
+    });
+  }
+
+  actions.push({
+    text: `Pass on animal & relocate to an alternate ridge / draw`,
+    action: () => {
+      logHunt(`You ease off, lower your weapon, and let the magnificent beast walk undisturbed into the thick timber.`);
+      advanceTimeAndCycle(35);
+      generateAnimalEncounter();
+    }
+  });
+
+  renderHuntActions(actions);
+}
+
+function actionGlassAndWind() {
+  const q = GameState.quarry;
+  let safeWind = (GameState.windDir === "NW" || GameState.windDir === "N") && GameState.thermals === "Rising Uphill";
+  let windText = safeWind 
+    ? `<span class="hl-gold">The wind is cutting safely across your flank; your scent plume is carrying high above his nostrils.</span>`
+    : `<span class="hl-blood">Warning: Swirling thermals are eddying down into his browse line! Scent detection imminent!</span>`;
+
+  logHunt(`
+    You steady your glass. His neck is heavily swollen from the peak rut; massive muscle cascades across his front shoulders.
+    <br>${windText}
+    <br>Estimated Mass: <strong>~${q.weight} lbs</strong>. Scoring Bracket: <strong>${q.spec.scoringType}</strong>.
+  `);
+
+  if (!GameState.godMode.freezeAlert) {
+    GameState.alertness = Math.min(100, GameState.alertness + 4);
+  }
+  updateHuntHUD();
+  offerStandardHuntDecisions();
+}
+
+function actionConsultHound() {
+  if (GameState.alertness > 50) {
+    logHunt(`<span class="hl-dog">Copper presses his chest flat against the cedar platform. His amber eyes are locked on the animal, whiskers twitching. He signals high tension.</span>`);
+  } else {
+    logHunt(`<span class="hl-dog">Copper sits motionless at your boot heel, his black nose sampling the rising updrafts. Relaxed, focused, completely calm.</span>`);
+  }
+  offerStandardHuntDecisions();
+}
+
+function actionUseCalls() {
+  const roll = Math.random();
+  if (roll > 0.40) {
+    const closed = Math.floor(Math.random() * 25) + 15;
+    GameState.distanceYards = Math.max(16, GameState.distanceYards - closed);
+    if (!GameState.godMode.freezeAlert) GameState.alertness = Math.min(100, GameState.alertness + 8);
+    logHunt(`
+      <span class="hl-gold">A guttural social challenge vibrates through the basin!</span> The beast snaps his rack around, bristles his dorsal ridge, and marches aggressively <strong>${closed} yards closer</strong>!
+    `);
+  } else {
+    if (!GameState.godMode.freezeAlert) GameState.alertness = Math.min(100, GameState.alertness + 26);
+    logHunt(`
+      The reed flutters slightly in the damp cold. The animal flinches, raising his snout and stomping his front hoof into the frosty duff in high alarm!
+    `);
+  }
+  updateHuntHUD();
+  if (checkAnimalFlight()) return;
+  offerStandardHuntDecisions();
+}
+
+function actionCrawlCloser() {
+  const roll = Math.random();
+  if (roll > 0.35 || GameState.godMode.stealth) {
+    const closed = Math.floor(Math.random() * 30) + 18;
+    GameState.distanceYards = Math.max(15, GameState.distanceYards - closed);
+    if (!GameState.godMode.freezeAlert) GameState.alertness = Math.min(100, GameState.alertness + 8);
+    logHunt(`Sliding belly-down through cold moss and fallen deadwood, you close the distance by <strong>${closed} yards</strong>!`);
+  } else {
+    if (!GameState.godMode.freezeAlert) GameState.alertness = Math.min(100, GameState.alertness + 35);
+    logHunt(`<span class="hl-blood">CRACK!</span> A dead oak limb snaps beneath your knee. The animal's head jerks up instantly, staring straight into your cover!`);
+  }
+  updateHuntHUD();
+  if (checkAnimalFlight()) return;
+  offerStandardHuntDecisions();
+}
+
+function checkAnimalFlight() {
+  if (GameState.godMode.freezeAlert) return false;
+  if (GameState.alertness >= 85) {
+    logHunt(`
+      <span class="hl-blood">SPOOKED!</span> The animal catches your scent or hears a sudden shift in brush! With an explosive snort and powerful bounds, he vanishes through the hemlocks!
+    `);
+    renderHuntActions([
+      {
+        text: `Regroup, check thermals, and stalk an adjacent sector`,
+        action: () => {
+          advanceTimeAndCycle(45);
+          generateAnimalEncounter();
+        }
+      }
+    ]);
+    return true;
+  }
+  return false;
+}
+
+/* =========================================================================
+   TARGET ACQUISITION & BALLISTIC TERMINAL DAMAGE
+   ========================================================================= */
+
+function enterTargetAimMode() {
+  const w = WEAPONS_CATALOG[GameState.equippedWeapon];
+  const q = GameState.quarry;
+
+  logHunt(`
+    <span class="hl-gold">=== YOU ARE IN THE SHOOTING POSITION ===</span><br>
+    <strong>Target:</strong> ${q.spec.name} (${q.fur.name})<br>
+    <strong>True Range:</strong> ${GameState.distanceYards} yds | <strong>Orientation:</strong> ${q.targetAngle}<br>
+    <strong>Weapon:</strong> ${w.name}
+  `);
+
+  renderHuntActions([
+    {
+      text: `[VITAL ZONE: DOUBLE LUNG] High-percentage margin; bilateral pneumothorax and rapid collapse.`,
+      action: () => executeTerminalShot("double_lung")
+    },
+    {
+      text: `[VITAL ZONE: HEART / AORTA] Crease directly behind the elbow; instant hydrostatic pressure drop.`,
+      action: () => executeTerminalShot("heart")
+    },
+    {
+      text: `[VITAL ZONE: HIGH SHOULDER / CNS] Aim for upper scapular spine; anchors animal instantly in tracks.`,
+      action: () => executeTerminalShot("high_shoulder")
+    },
+    {
+      text: `[MARGINAL: LIVER / BACK OF LUNGS] Angled through floating ribs; lethal but requires patient trailing.`,
+      action: () => executeTerminalShot("liver")
+    },
+    {
+      text: `[ABORT SHOT] Ease off trigger/draw and wait for cleaner broadside window.`,
+      action: () => offerStandardHuntDecisions()
+    }
+  ]);
+}
+
+function executeTerminalShot(intendedVital) {
+  const isBow = GameState.equippedWeapon.includes("bow");
+  const dist = GameState.distanceYards;
+  let accuracy = 0.92;
+
+  if (GameState.godMode.deadeye) {
+    accuracy = 1.0;
+  } else if (isBow) {
+    if (dist > 60) accuracy -= 0.45;
+    else if (dist > 40) accuracy -= 0.20;
+    else if (dist > 25) accuracy -= 0.08;
+
+    if (GameState.equippedWeapon === "bow_compound") {
+      if (GameState.attachments.sight === "single_pin") accuracy += 0.08;
+      if (GameState.attachments.rest === "drop_away") accuracy += 0.06;
+      if (GameState.attachments.stabilizer === "carbon_10") accuracy += 0.05;
+    } else if (GameState.equippedWeapon === "bow_longbow") {
+      accuracy -= 0.16;
+    }
+  } else {
+    if (dist > 350) accuracy -= 0.35;
+    else if (dist > 250) accuracy -= 0.15;
+    if (GameState.standMethod === 'tree_stand') accuracy += 0.06;
+  }
+
+  let finalImpact = intendedVital;
+  if (Math.random() > accuracy) {
+    const pulled = ["gut", "shoulder_bone", "superficial_graze", "liver"];
+    finalImpact = pulled[Math.floor(Math.random() * pulled.length)];
+  }
+
+  processShotTerminalResults(finalImpact);
+}
+
+function processShotTerminalResults(hit) {
+  const isBow = GameState.equippedWeapon.includes("bow");
+  let narrative = "";
+
+  if (hit === "heart") {
+    narrative = isBow
+      ? `THWACK! The heavy micro-diameter carbon arrow punches cleanly through the cardiac center. The monarch mule-kicks violently, sprints thirty yards on adrenaline, and crashes with an echoing thud!`
+      : `BOOOM! Projectile transfers maximum hydrostatic shock through the aorta. He mule-kicks, runs thirty-five yards with chin skimming the frost, and folds!`;
+    GameState.bloodTrail = { type: "heart", desc: "Copious bright crimson arterial spray painted high on surrounding cedar trunks." };
+  } else if (hit === "double_lung") {
+    narrative = isBow
+      ? `SHH-CLACK! Complete razor-sharp pass-through! The arrow buries deep into the loam. The animal bolts forty yards, coughing pink frothy spray against the birch before collapsing.`
+      : `CRACK-THUMP! Massive energy transfer shatters the ribcage, inducing immediate bilateral lung collapse. He lunges fifty yards and expires peacefully.`;
+    GameState.bloodTrail = { type: "double_lung", desc: "Frothy, bubble-rich pink blood coating brush on both sides of the trail." };
+  } else if (hit === "high_shoulder") {
+    narrative = `WHAM! Heavy grain projectile shatters the scapular blade and severs the central nervous spine. The monarch drops straight down in his tracks—zero yards traveled! Instant humane shutdown.`;
+    GameState.bloodTrail = { type: "instant", desc: "Animal anchored where he stood." };
+  } else if (hit === "liver") {
+    narrative = `THUD. Impact behind the diaphragm into the liver. The animal humps his back, tucks his tail tightly, and walks stiffly into dense laurel cover. Fatal, but requires tracking patience.`;
+    GameState.bloodTrail = { type: "liver", desc: "Dark deep burgundy blood droplets with zero air bubbles." };
+  } else if (hit === "gut") {
+    narrative = `SQUELCH. Impact strikes paunch. The animal flinches and eases away with lowered head. <span class="hl-blood">Caution: Pressing him right now will bump him into the next valley!</span>`;
+    GameState.bloodTrail = { type: "gut", desc: "Watery greenish-brown fluid with pungent stomach matter and sparse blood." };
+  } else {
+    narrative = `CLATTER. Grazed high dorsal muscle or deflected by intervening branches. The animal bounds over the rimrock unharmed. Clean miss.`;
+    GameState.bloodTrail = null;
+  }
+
+  logHunt(`
+    <span class="hl-blood">=== IMPACT REPORT ===</span><br>
+    ${narrative}
+  `);
+
+  if (!GameState.bloodTrail) {
+    renderHuntActions([
+      { text: `Inspect ground sign & continue hunt`, action: () => { advanceTimeAndCycle(30); generateAnimalEncounter(); } }
+    ]);
+  } else if (GameState.bloodTrail.type === "instant") {
+    renderHuntActions([
+      { text: `Approach downed quarry & tag trophy`, action: () => triggerDossierHarvest() }
+    ]);
+  } else {
+    offerBloodTrackingWorkflow();
+  }
+}
+
+function offerBloodTrackingWorkflow() {
+  logHunt(`
+    <strong>Sign at Point of Impact:</strong> ${GameState.bloodTrail.desc}
+    <br>Select your recovery tactic:
+  `);
+
+  renderHuntActions([
+    {
+      text: `Take up the blood trail immediately on foot`,
+      action: () => executeTrackAttempt(false)
+    },
+    {
+      text: `Wait 45 minutes to let the animal bed down and expire undisturbed`,
+      action: () => executeTrackAttempt(true)
+    },
+    {
+      text: `Cast hound Copper onto the blood line (Cold Nose Tracking)`,
+      action: () => executeHoundTrack()
+    }
+  ]);
+}
+
+function executeTrackAttempt(waited) {
+  const bt = GameState.bloodTrail;
+  if (bt.type === "gut" && !waited) {
+    logHunt(`
+      <span class="hl-blood">TRACKING FAILURE!</span> You pushed too aggressively! You jump the bedded animal fifty yards ahead. He runs four miles across public borders. Blood trail lost.
+    `);
+    renderHuntActions([
+      { text: `Return to camp with a bitter lesson learned`, action: () => { advanceTimeAndCycle(90); generateAnimalEncounter(); } }
+    ]);
+    return;
+  }
+
+  logHunt(`Tracking crimson sign through frost-bitten ferns, you crest a low ridge. Fifty yards ahead in a bed of dry timber lies your prize!`);
+  renderHuntActions([
+    { text: `Approach and claim your certified harvest!`, action: () => triggerDossierHarvest() }
+  ]);
+}
+
+function executeHoundTrack() {
+  if (GameState.hound !== 'hound_copper') { executeTrackAttempt(false); return; }
+  logHunt(`
+    <span class="hl-dog">You unclip Copper's lead: "Search him out, Copper!"</span>
+    <br>
+    The Bavarian Mountain Hound drops his nose to the crimson duff, sounding a deep bell-like bay. He pulls eagerly along the blood plume, navigating straight to the fallen monarch sixty yards out!
+  `);
+  renderHuntActions([
+    { text: `Praise the hound & claim your trophy!`, action: () => triggerDossierHarvest() }
+  ]);
+}
+
+/* =========================================================================
+   HARVEST DOSSIER & RECORD LODGE
+   ========================================================================= */
+
+function triggerDossierHarvest() {
+  const q = GameState.quarry;
+  const w = WEAPONS_CATALOG[GameState.equippedWeapon];
+  const modal = document.getElementById("dossier-modal");
+  const body = document.getElementById("dossier-dynamic-body");
+
+  let bCls = "badge-standard";
+  if (q.recordTier === "WORLD RECORD") bCls = "badge-world";
+  if (q.recordTier === "NATIONAL RECORD") bCls = "badge-national";
+  if (q.recordTier === "STATE RECORD") bCls = "badge-state";
+
+  body.innerHTML = `
+    <div style="background:#0a0e07; border:2px solid var(--accent-gold); border-radius:6px; padding:14px; font-family:var(--font-mono); margin-top:8px;">
+      <div class="record-badge ${bCls}">OFFICIAL STATUS: ${q.recordTier}</div>
+      <div style="font-size:1.15rem; font-weight:bold; color:var(--text-bright); margin-bottom:4px;">
+        ${q.spec.name} (${q.spec.scientific})
+      </div>
+      <div style="font-size:0.8rem; margin-bottom:12px;">
+        Coat Genetics: <span class="${q.fur.rare ? 'hl-rare' : ''}">${q.fur.name}</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:6px 12px; font-size:0.8rem; margin-bottom:12px; border-bottom:1px dashed #28341e; padding-bottom:10px;">
+        <div><span>GROSS SCORE:</span> <strong class="hl-gold">${q.score}"</strong></div>
+        <div><span>RACK POINTS:</span> <strong>${q.points}</strong></div>
+        <div><span>INSIDE SPREAD:</span> <strong>${q.spread}"</strong></div>
+        <div><span>MAIN BEAM:</span> <strong>${q.beam}"</strong></div>
+        <div><span>LIVE WEIGHT:</span> <strong>${q.weight} lbs</strong></div>
+        <div><span>HARVEST DISTANCE:</span> <strong>${GameState.distanceYards} yds</strong></div>
+      </div>
+
+      <div style="font-size:0.74rem; color:var(--text-dim); line-height:1.45;">
+        Weapon: <strong>${w.name}</strong><br>
+        Location: <strong>${q.habitat}</strong> | Style: <strong>${GameState.standMethod.replace('_', ' ')}</strong><br>
+        Certified by Boone & Crockett / Pope & Young Field Master.
+      </div>
+    </div>
+  `;
+
+  modal.style.display = "flex";
+}
+
+function claimHarvestAndMount() {
+  document.getElementById("dossier-modal").style.display = "none";
+  const q = GameState.quarry;
+  const w = WEAPONS_CATALOG[GameState.equippedWeapon];
+
+  let bounty = Math.floor(q.score * 20);
+  if (q.fur.rare) bounty += 4000;
+  if (q.recordTier === "WORLD RECORD") bounty += 18000;
+  if (q.recordTier === "NATIONAL RECORD") bounty += 9000;
+  if (q.recordTier === "STATE RECORD") bounty += 4500;
+
+  GameState.cash += bounty;
+
+  GameState.trophyLodge.unshift({
+    species: q.spec.name,
+    score: q.score,
+    recordTier: q.recordTier,
+    fur: q.fur.name,
+    points: q.points,
+    weight: q.weight,
+    weapon: w.name.split(' — ')[0],
+    bounty: bounty,
+    date: `Day ${GameState.day}`
+  });
+
+  autoSave();
+  updateGlobalHeader();
+
+  logHunt(`
+    <span class="hl-gold">TROPHY ENTERED!</span> Carcass field dressed and delivered to the taxidermist. Bounty & Outfitter payout: <strong>+$${bounty.toLocaleString()}</strong>!
+  `);
+
+  advanceTimeAndCycle(60);
+  generateAnimalEncounter();
+}
+
+function advanceTimeAndCycle(minutes) {
+  GameState.timeMinutes += minutes;
+  if (GameState.timeMinutes >= 1140) { // Past 7:00 PM
+    GameState.timeMinutes = 370; // 06:10 AM next dawn
+    GameState.day += 1;
+    processDailyEconomics();
+  }
+
+  // Shifts in wind & thermals
+  if (Math.random() > 0.6) {
+    const winds = ["N", "NE", "NW", "W", "SW"];
+    GameState.windDir = winds[Math.floor(Math.random() * winds.length)];
+    GameState.windSpeed = Math.floor(Math.random() * 12) + 4;
+  }
+  if (GameState.timeMinutes < 600) GameState.thermals = "Rising Uphill";
+  else if (GameState.timeMinutes > 960) GameState.thermals = "Falling Downhill";
+  else GameState.thermals = "Swirling / Variable";
+
+  autoSave();
+  updateGlobalHeader();
+}
+
+/* =========================================================================
+   LAND MANAGEMENT, HABITAT & TRACT IMPROVEMENTS
+   ========================================================================= */
+
+function renderRanchView() {
+  const container = document.getElementById("property-list-grid");
+  container.innerHTML = "";
+
+  GameState.ownedProperties.forEach(prop => {
+    const card = document.createElement("div");
+    card.className = "card-item";
+    
+    let upgradesList = [];
+    if (prop.highFenced) upgradesList.push("High-Fence (8ft)");
+    if (prop.foodPlots > 0) upgradesList.push(`${prop.foodPlots}x Clover Food Plots`);
+    if (prop.prescribedBurn) upgradesList.push("Controlled Burn Browse (+Mass)");
+    if (prop.timberThinned) upgradesList.push("Selective Logging Thicket");
+    if (prop.mineralLicks) upgradesList.push("Automated Mineral Licks");
+    if (prop.trailCams) upgradesList.push("Cell Cam Scouting Grid");
+    if (prop.fracked) upgradesList.push("<span class='hl-rust'>Fracking Pad Active ($/Day)</span>");
+
+    let scoutHtml = "";
+    if (prop.trailCams) {
+      scoutHtml = `
+        <div style="margin-top:6px; padding:6px; background:#0b0e07; border-radius:4px; border:1px solid #1f2a17;">
+          <div style="font-size:0.68rem; color:var(--accent-gold); font-weight:bold;">CELL CAM SCOUTING REPORTS:</div>
+          <span class="scout-tag">Scouted: ${Math.floor(165 + prop.geneticScoreBonus)}" Rack</span>
+          <span class="scout-tag">Weight: ~${Math.floor(210 + prop.geneticMassBonus)} lbs</span>
+          <span class="scout-tag">Coat: Typical Dun</span>
+        </div>
+      `;
+    }
+
+    card.innerHTML = `
+      <div>
+        <div class="card-title">${prop.name}</div>
+        <div class="card-meta">${prop.acres} Acres | ${prop.region}</div>
+        <div class="card-desc" style="margin-top:4px;">
+          <strong>Improvements:</strong> ${upgradesList.length ? upgradesList.join(', ') : 'Raw Untamed Forest'}<br>
+          <strong>Wild Herd Genetic Bonus:</strong> <span class="hl-gold">+${prop.geneticScoreBonus}" B&C</span> | <span class="hl-gold">+${prop.geneticMassBonus} lbs Mass</span>
+        </div>
+        ${scoutHtml}
+      </div>
+      <div style="display:flex; flex-direction:column; gap:5px; margin-top:8px;">
+        ${!prop.foodPlots ? `<button class="btn-secondary" onclick="buyPropertyImprovement('${prop.id}', 'food_plot')">Plant Clover & Chicory Food Plots ($3,500)</button>` : ''}
+        ${!prop.prescribedBurn ? `<button class="btn-secondary" onclick="buyPropertyImprovement('${prop.id}', 'prescribed_burn')">Conduct Prescribed Fire Burn ($2,800)</button>` : ''}
+        ${!prop.timberThinned ? `<button class="btn-secondary" onclick="buyPropertyImprovement('${prop.id}', 'timber_thin')">Selective Hardwood Cut (+$5,500 Logging + Habitat)</button>` : ''}
+        ${!prop.mineralLicks ? `<button class="btn-secondary" onclick="buyPropertyImprovement('${prop.id}', 'mineral_licks')">Install Trophy Rock Mineral Stations ($2,400)</button>` : ''}
+        ${!prop.trailCams ? `<button class="btn-secondary" onclick="buyPropertyImprovement('${prop.id}', 'trail_cams')">Install Cellular Trail Cam Grid ($1,200)</button>` : ''}
+        ${!prop.highFenced ? `<button class="btn-secondary" onclick="buyPropertyImprovement('${prop.id}', 'high_fence')">Erect 8ft High Game Perimeter Fence ($18,000)</button>` : ''}
+        <button class="btn-secondary" style="border-color:var(--accent-gold);" onclick="promptStockWildHerd('${prop.id}')">Release Captive Breeder into Wild Tract (+Genetics)</button>
+        ${!prop.fracked ? `<button class="btn-secondary" style="border-color:var(--industrial-rust); color:var(--industrial-rust);" onclick="leaseMineralFracking('${prop.id}')">Sign Fracking Mineral Lease (+$45k Bonus + Daily Royalties)</button>` : ''}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  // Render Real Estate Market
+  const market = document.getElementById("real-estate-market");
+  market.innerHTML = "";
+  PROPERTIES_CATALOG.forEach(cat => {
+    const isOwned = GameState.ownedProperties.some(p => p.id === cat.id);
+    if (!isOwned) {
+      const card = document.createElement("div");
+      card.className = "card-item";
+      card.innerHTML = `
+        <div>
+          <div class="card-title">${cat.name}</div>
+          <div class="card-meta">${cat.acres} Acres | Price: $${cat.cost.toLocaleString()}</div>
+          <div class="card-desc" style="margin-top:4px;">${cat.desc}</div>
+        </div>
+        <button class="btn-primary" style="margin-top:8px;" onclick="purchaseNewProperty('${cat.id}')">Acquire Land Deed ($${cat.cost.toLocaleString()})</button>
+      `;
+      market.appendChild(card);
+    }
+  });
+}
+
+function purchaseNewProperty(propId) {
+  const cat = PROPERTIES_CATALOG.find(p => p.id === propId);
+  if (!cat) return;
+  if (GameState.cash < cat.cost) { alert("Insufficient funds to purchase this tract! Check First Ag Bank for financing."); return; }
+  
+  GameState.cash -= cat.cost;
+  GameState.ownedProperties.push({
+    id: cat.id,
+    name: cat.name,
+    acres: cat.acres,
+    region: cat.region,
+    fracked: false,
+    highFenced: false,
+    foodPlots: 0,
+    prescribedBurn: false,
+    timberThinned: false,
+    mineralLicks: false,
+    trailCams: false,
+    geneticScoreBonus: 0,
+    geneticMassBonus: 0,
+    activeLease: "none"
+  });
+  
+  autoSave();
+  updateGlobalHeader();
+  renderRanchView();
+  alert(`Deed registered! You now own ${cat.name}!`);
+}
+
+function buyPropertyImprovement(propId, type) {
+  const prop = GameState.ownedProperties.find(p => p.id === propId);
+  if (!prop) return;
+
+  const costs = { food_plot: 3500, prescribed_burn: 2800, timber_thin: -5500, mineral_licks: 2400, trail_cams: 1200, high_fence: 18000 };
+  const cost = costs[type];
+
+  if (cost > 0 && GameState.cash < cost) { alert("Insufficient cash on hand!"); return; }
+
+  GameState.cash -= cost;
+  if (type === 'food_plot') { prop.foodPlots += 1; prop.geneticScoreBonus += 8; }
+  if (type === 'prescribed_burn') { prop.prescribedBurn = true; prop.geneticMassBonus += 25; }
+  if (type === 'timber_thin') { prop.timberThinned = true; prop.geneticScoreBonus += 5; }
+  if (type === 'mineral_licks') { prop.mineralLicks = true; prop.geneticScoreBonus += 12; }
+  if (type === 'trail_cams') { prop.trailCams = true; }
+  if (type === 'high_fence') { prop.highFenced = true; }
+
+  autoSave();
+  updateGlobalHeader();
+  renderRanchView();
+}
+
+function leaseMineralFracking(propId) {
+  const prop = GameState.ownedProperties.find(p => p.id === propId);
+  if (!prop) return;
+  if (confirm("Sign hydraulic shale fracking lease? You receive an immediate $45,000 cash bonus and daily royalties, but industrial equipment noise will elevate wild animal alertness on this tract.")) {
+    prop.fracked = true;
+    GameState.cash += 45000;
+    autoSave();
+    updateGlobalHeader();
+    renderRanchView();
+  }
+}
+
+function promptStockWildHerd(propId) {
+  const prop = GameState.ownedProperties.find(p => p.id === propId);
+  const eligibleSires = GameState.breedingHerd.filter(a => a.sex === 'buck');
+  if (eligibleSires.length === 0) {
+    alert("No captive bucks or bulls available in your stud program to release!");
+    return;
+  }
+
+  let promptTxt = `Select a stud to release into ${prop.name} to permanently elevate wild herd genetics:\n`;
+  eligibleSires.forEach((s, idx) => {
+    promptTxt += `${idx + 1}: ${s.name} (${s.species.toUpperCase()} - ${s.pedigreeScore}" B&C, ${s.bodyWeight} lbs)\n`;
+  });
+
+  let choice = prompt(promptTxt, "1");
+  if (!choice) return;
+  let idx = parseInt(choice) - 1;
+  if (idx >= 0 && idx < eligibleSires.length) {
+    const sire = eligibleSires[idx];
+    const scoreGain = Math.floor(sire.pedigreeScore * 0.08);
+    const massGain = Math.floor(sire.bodyWeight * 0.06);
+
+    prop.geneticScoreBonus += scoreGain;
+    prop.geneticMassBonus += massGain;
+
+    // Remove from captive herd
+    GameState.breedingHerd = GameState.breedingHerd.filter(a => a.id !== sire.id);
+    autoSave();
+    updateGlobalHeader();
+    renderRanchView();
+    alert(`Released ${sire.name} into the wild tract! Permanent baseline boosted by +${scoreGain}" Gross Score and +${massGain} lbs Mass!`);
+  }
+}
+
+/* =========================================================================
+   BANK LOANS & PRIVATE HUNTER LEASES
+   ========================================================================= */
+
+function renderFinanceView() {
+  document.getElementById("bank-debt-display").innerText = `$${Math.floor(GameState.debt).toLocaleString()}`;
+  const dailyInt = Math.floor(GameState.debt * 0.0012);
+  document.getElementById("bank-interest-display").innerText = `$${dailyInt.toLocaleString()} / day`;
+
+  let totalAcres = GameState.ownedProperties.reduce((acc, p) => acc + p.acres, 0);
+  let cap = totalAcres * 150;
+  document.getElementById("bank-borrow-cap").innerText = `$${cap.toLocaleString()}`;
+
+  // Render Leases Grid
+  const leaseGrid = document.getElementById("leases-tract-grid");
+  leaseGrid.innerHTML = "";
+
+  GameState.ownedProperties.forEach(prop => {
+    const card = document.createElement("div");
+    card.className = "card-item";
+
+    const leaseNames = {
+      none: "No Commercial Lease Active",
+      day_pass: "Weekend Bowhunter Day Passes ($350/day)",
+      archery_club: "Archery Club Syndicate ($1,200/wk)",
+      gun_club: "Corporate Gun Syndicate ($3,500/wk — High Game Alertness)",
+      cull_lease: "Youth Management Culling Lease ($600/wk — Culls Low Racks, +Score)"
+    };
+
+    card.innerHTML = `
+      <div>
+        <div class="card-title">${prop.name}</div>
+        <div class="card-meta">Current Lease: ${leaseNames[prop.activeLease]}</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:5px; margin-top:8px;">
+        <button class="btn-secondary" onclick="setTractLease('${prop.id}', 'none')">Vacate Leases (Hunt Exclusively Private)</button>
+        <button class="btn-secondary" onclick="setTractLease('${prop.id}', 'day_pass')">Host Weekend Bowhunter Day Passes ($350/day)</button>
+        <button class="btn-secondary" onclick="setTractLease('${prop.id}', 'archery_club')">Sign Archery Club Lease ($1,200/wk)</button>
+        <button class="btn-secondary" onclick="setTractLease('${prop.id}', 'gun_club')">Sign High-Dollar Corporate Gun Club ($3,500/wk)</button>
+        <button class="btn-secondary" onclick="setTractLease('${prop.id}', 'cull_lease')">Youth Management Culling Lease ($600/wk + Culls Spike Bucks)</button>
+      </div>
+    `;
+    leaseGrid.appendChild(card);
+  });
+}
+
+function takeBankLoan(amount) {
+  let totalAcres = GameState.ownedProperties.reduce((acc, p) => acc + p.acres, 0);
+  let cap = totalAcres * 150;
+  if (GameState.debt + amount > cap) {
+    alert(`Loan denied. Your borrowing limit based on deeded land equity is $${cap.toLocaleString()}.`);
+    return;
+  }
+  GameState.debt += amount;
+  GameState.cash += amount;
+  autoSave();
+  updateGlobalHeader();
+  renderFinanceView();
+  alert(`Loan approved! +$${amount.toLocaleString()} credited to your operating checking account.`);
+}
+
+function repayBankDebt(amount) {
+  if (GameState.debt <= 0) { alert("You have zero outstanding loan balance!"); return; }
+  let toPay = amount === 'ALL' ? GameState.debt : amount;
+  if (GameState.cash < toPay) {
+    toPay = GameState.cash;
+  }
+  if (toPay <= 0) { alert("Insufficient funds to make a loan repayment!"); return; }
+  GameState.debt -= toPay;
+  GameState.cash -= toPay;
+  autoSave();
+  updateGlobalHeader();
+  renderFinanceView();
+  alert(`Repaid $${toPay.toLocaleString()} of loan principal.`);
+}
+
+function setTractLease(propId, leaseType) {
+  const prop = GameState.ownedProperties.find(p => p.id === propId);
+  if (!prop) return;
+  prop.activeLease = leaseType;
+  if (leaseType === 'cull_lease') {
+    prop.geneticScoreBonus += 4; // Culling small spikes increases average herd genetics
+  }
+  autoSave();
+  renderFinanceView();
+}
+
+function processDailyEconomics() {
+  let dailyGross = 0;
+  let dailyExpenses = 120; // Feed and perimeter maintenance
+
+  // Loan interest
+  let interest = Math.floor(GameState.debt * 0.0012);
+  GameState.debt += interest;
+
+  GameState.ownedProperties.forEach(p => {
+    if (p.fracked) dailyGross += 1800;
+    if (p.activeLease === 'day_pass') dailyGross += 350;
+    if (p.activeLease === 'archery_club') dailyGross += Math.floor(1200 / 7);
+    if (p.activeLease === 'gun_club') dailyGross += Math.floor(3500 / 7);
+    if (p.activeLease === 'cull_lease') dailyGross += Math.floor(600 / 7);
+  });
+
+  GameState.cash += (dailyGross - dailyExpenses);
+  autoSave();
+}
+
+/* =========================================================================
+   MULTI-SPECIES GENETIC STUD PROGRAM & COMPRESSION
+   ========================================================================= */
+
+function renderBreedingView() {
+  const herdGrid = document.getElementById("breeder-herd-grid");
+  herdGrid.innerHTML = "";
+  document.getElementById("semen-vault-count").innerText = `${GameState.semenVault.length} Straws in Cryo-Tank`;
+
+  GameState.breedingHerd.forEach(animal => {
+    const card = document.createElement("div");
+    card.className = "card-item";
+    const spec = SPECIES_DB[animal.species];
+
+    card.innerHTML = `
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="card-title">${animal.name} (${animal.sex.toUpperCase()})</span>
+          <span style="font-size:0.7rem; color:var(--accent-gold); font-family:var(--font-mono);">GEN ${animal.generation}</span>
+        </div>
+        <div class="card-meta">${spec.name} | Lineage Potential: ${animal.pedigreeScore}" B&C | Mass: ${animal.bodyWeight} lbs</div>
+        <div class="card-desc" style="margin-top:4px;">
+          <strong>Traits:</strong> ${animal.traits.join(', ')}
+        </div>
+      </div>
+      <div style="margin-top:6px;">
+        ${animal.sex === 'buck' 
+          ? `<button class="btn-primary" style="font-size:0.74rem; width:100%;" onclick="harvestSemenStraws('${animal.id}')">Collect Semen Straws (Cryo-Harvest)</button>`
+          : `<span style="font-size:0.74rem; color:var(--text-dim);">${animal.pregnant ? 'Status: Gestating High-Pedigree Fawn' : 'Status: Ready for Insemination'}</span>`
+        }
+      </div>
+    `;
+    herdGrid.appendChild(card);
+  });
+
+  // Populate Insemination Selectors
+  const doeSel = document.getElementById("ai-doe-select");
+  doeSel.innerHTML = "";
+  GameState.breedingHerd.filter(a => a.sex === 'doe' && !a.pregnant).forEach(d => {
+    doeSel.innerHTML += `<option value="${d.id}">${d.name} (${d.species.toUpperCase()} - ${d.pedigreeScore}")</option>`;
+  });
+
+  const sireSel = document.getElementById("ai-sire-select");
+  sireSel.innerHTML = "";
+  GameState.semenVault.forEach((s, idx) => {
+    sireSel.innerHTML += `<option value="${idx}">${s.sireName} (${s.species.toUpperCase()} - ${s.score}" | ${s.weight} lbs)</option>`;
+  });
+}
+
+function promptAcquireBreederStock() {
+  const speciesKeys = Object.keys(SPECIES_DB);
+  let text = "Select species foundation breeder stock to purchase for $12,000:\n";
+  speciesKeys.forEach((k, idx) => {
+    text += `${idx + 1}: ${SPECIES_DB[k].name}\n`;
+  });
+
+  let choice = prompt(text, "1");
+  if (!choice) return;
+  let idx = parseInt(choice) - 1;
+  if (idx >= 0 && idx < speciesKeys.length) {
+    if (GameState.cash < 12000) { alert("Insufficient funds ($12,000 required)!"); return; }
+    GameState.cash -= 12000;
+    const specKey = speciesKeys[idx];
+    const spec = SPECIES_DB[specKey];
+
+    const isSire = Math.random() > 0.5;
+    const newAnimal = {
+      id: "stud_" + Date.now(),
+      name: `${spec.name.split(' ')[0]} ${isSire ? 'Baron' : 'Matron'}`,
+      species: specKey,
+      sex: isSire ? 'buck' : 'doe',
+      generation: 1,
+      ageYears: 3.0,
+      pedigreeScore: +(spec.scoreMax * 0.95 + Math.random() * 25).toFixed(1),
+      bodyWeight: Math.floor(spec.weightMax * 0.9 + Math.random() * 40),
+      traits: ["Foundation Lineage", "High Caliber Frame"],
+      strawsCollected: 0,
+      pregnant: false
+    };
+
+    GameState.breedingHerd.push(newAnimal);
+    autoSave();
+    updateGlobalHeader();
+    renderBreedingView();
+    alert(`Acquired ${newAnimal.name} into your high-fence breeding pen!`);
+  }
+}
+
+function harvestSemenStraws(buckId) {
+  const buck = GameState.breedingHerd.find(a => a.id === buckId);
+  if (!buck) return;
+  const yieldCount = Math.floor(Math.random() * 4) + 3;
+  for (let i = 0; i < yieldCount; i++) {
+    GameState.semenVault.push({
+      id: "straw_" + Date.now() + "_" + i,
+      species: buck.species,
+      sireName: buck.name,
+      score: buck.pedigreeScore,
+      weight: buck.bodyWeight
+    });
+  }
+  buck.strawsCollected += yieldCount;
+  autoSave();
+  renderBreedingView();
+  alert(`Collected ${yieldCount} straws of cryo-preserved semen from ${buck.name}!`);
+}
+
+function sellAllSemenStraws() {
+  if (GameState.semenVault.length === 0) { alert("Cryo-vault is empty!"); return; }
+  let totalRevenue = 0;
+  GameState.semenVault.forEach(s => {
+    totalRevenue += Math.floor(s.score * 8.5);
+  });
+  GameState.cash += totalRevenue;
+  alert(`Liquidated ${GameState.semenVault.length} frozen semen straws across commercial breeding outfits for +$${totalRevenue.toLocaleString()}!`);
+  GameState.semenVault = [];
+  autoSave();
+  updateGlobalHeader();
+  renderBreedingView();
+}
+
+function executeArtificialInsemination() {
+  if (GameState.cash < 1400) { alert("Insufficient funds for veterinary procedure ($1,400)!"); return; }
+  if (GameState.semenVault.length === 0) { alert("No sire straws available in cryo-vault!"); return; }
+  
+  const doeId = document.getElementById("ai-doe-select").value;
+  const sireIdx = parseInt(document.getElementById("ai-sire-select").value);
+  const doe = GameState.breedingHerd.find(a => a.id === doeId);
+  const straw = GameState.semenVault[sireIdx];
+
+  if (!doe || !straw) { alert("Invalid pairing selected!"); return; }
+  if (doe.species !== straw.species) {
+    alert(`Cross-species incompatibility! Cannot fertilize ${SPECIES_DB[doe.species].name} with ${SPECIES_DB[straw.species].name} semen.`);
+    return;
+  }
+
+  GameState.cash -= 1400;
+  GameState.semenVault.splice(sireIdx, 1);
+  doe.pregnant = true;
+
+  // Compounded generational genetic inheritance
+  const inheritedScore = +(((doe.pedigreeScore + straw.score) / 2) + (Math.random() * 18 + 12)).toFixed(1);
+  const inheritedMass = Math.floor(((doe.bodyWeight + straw.weight) / 2) + (Math.random() * 22 + 8));
+  const newGen = Math.max(doe.generation, 1) + 1;
+
+  setTimeout(() => {
+    const isMale = Math.random() > 0.5;
+    GameState.breedingHerd.push({
+      id: "offspring_" + Date.now(),
+      name: `Gen ${newGen} ${isMale ? 'Monarch' : 'Duchess'} (${doe.species.toUpperCase()})`,
+      species: doe.species,
+      sex: isMale ? 'buck' : 'doe',
+      generation: newGen,
+      ageYears: 0.5,
+      pedigreeScore: inheritedScore,
+      bodyWeight: inheritedMass,
+      traits: ["Compounded Genetics", "Drop-Tine Potential", "Dense Mass H1-H4"],
+      strawsCollected: 0,
+      pregnant: false
+    });
+    doe.pregnant = false;
+    autoSave();
+    renderBreedingView();
+  }, 1000);
+
+  autoSave();
+  updateGlobalHeader();
+  renderBreedingView();
+  alert("Insemination successful! A high-pedigree fawn/calf has been born into your pedigree nursery!");
+}
+
+/* =========================================================================
+   PRE-HUNT OUTFITTER & STAGING
+   ========================================================================= */
+
+function syncOutfitterUI() {
+  const propSel = document.getElementById("stage-property");
+  propSel.innerHTML = "";
+  GameState.ownedProperties.forEach(p => {
+    propSel.innerHTML += `<option value="${p.id}" ${p.id === GameState.activePropertyId ? 'selected' : ''}>${p.name}</option>`;
+  });
+
+  const wepSel = document.getElementById("stage-weapon");
+  wepSel.innerHTML = "";
+  GameState.ownedWeapons.forEach(wKey => {
+    const w = WEAPONS_CATALOG[wKey];
+    wepSel.innerHTML += `<option value="${wKey}" ${wKey === GameState.equippedWeapon ? 'selected' : ''}>${w.name}</option>`;
+  });
+
+  document.getElementById("stage-stand").value = GameState.standMethod;
+  document.getElementById("stage-dog").value = GameState.hound;
+  document.getElementById("stage-scent").value = GameState.scentGear;
+  toggleCompoundSubPanel();
+}
+
+function toggleCompoundSubPanel() {
+  const wep = document.getElementById("stage-weapon").value;
+  document.getElementById("compound-tuning-box").style.display = wep === "bow_compound" ? "block" : "none";
+}
+
+function applyPreHuntAndDeploy() {
+  GameState.activePropertyId = document.getElementById("stage-property").value;
+  GameState.standMethod = document.getElementById("stage-stand").value;
+  GameState.equippedWeapon = document.getElementById("stage-weapon").value;
+  GameState.hound = document.getElementById("stage-dog").value;
+  GameState.scentGear = document.getElementById("stage-scent").value;
+
+  if (GameState.equippedWeapon === "bow_compound") {
+    GameState.attachments.sight = document.getElementById("stage-sight").value;
+    GameState.attachments.rest = document.getElementById("stage-rest").value;
+    GameState.attachments.stabilizer = document.getElementById("stage-stabilizer").value;
+  }
+
+  autoSave();
+  switchView('view-hunt');
+  generateAnimalEncounter();
+}
+
+/* =========================================================================
+   TROPHY LODGE & SHOP VIEW
+   ========================================================================= */
+
+function renderLodgeView() {
+  const list = document.getElementById("lodge-records-list");
+  list.innerHTML = "";
+  if (GameState.trophyLodge.length === 0) {
+    list.innerHTML = `<p style="font-size:0.8rem; color:var(--text-dim); font-style:italic;">No trophy mounts currently displayed in the grand lodge. Head into the timber to harvest your first record book specimen.</p>`;
+    return;
+  }
+
+  GameState.trophyLodge.forEach(t => {
+    const card = document.createElement("div");
+    card.className = "card-item";
+    card.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="card-title">${t.species} — ${t.score}"</span>
+        <span class="card-meta">${t.recordTier}</span>
+      </div>
+      <div style="font-size:0.8rem; color:${t.fur.includes('Albino') || t.fur.includes('Piebald') || t.fur.includes('Melanistic') ? 'var(--rare-purple)' : 'var(--text-dim)'};">
+        Coat: ${t.fur} | Frame: ${t.points} | Weight: ${t.weight} lbs
+      </div>
+      <div style="font-size:0.74rem; color:var(--text-dim);">
+        Harvested with ${t.weapon} on ${t.date} | Valued at +$${t.bounty.toLocaleString()}
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function renderShopView() {
+  const wepGrid = document.getElementById("shop-weapons-grid");
+  wepGrid.innerHTML = "";
+  Object.keys(WEAPONS_CATALOG).forEach(k => {
+    const item = WEAPONS_CATALOG[k];
+    const isOwned = GameState.ownedWeapons.includes(k);
+    const card = document.createElement("div");
+    card.className = "card-item";
+    card.innerHTML = `
+      <div>
+        <div class="card-title">${item.name}</div>
+        <div class="card-meta">Price: $${item.cost.toLocaleString()}</div>
+        <div class="card-desc" style="margin-top:4px;">${item.desc}</div>
+      </div>
+      ${isOwned ? `<span style="color:var(--accent-green); font-size:0.74rem; font-weight:bold;">LOCKER ITEM ACQUIRED</span>` : `<button class="btn-primary" style="font-size:0.74rem;" onclick="buyWeapon('${k}')">Purchase Firearm / Bow</button>`}
+    `;
+    wepGrid.appendChild(card);
+  });
+}
+
+function buyWeapon(wKey) {
+  const item = WEAPONS_CATALOG[wKey];
+  if (GameState.cash < item.cost) { alert("Insufficient funds!"); return; }
+  GameState.cash -= item.cost;
+  GameState.ownedWeapons.push(wKey);
+  autoSave();
+  updateGlobalHeader();
+  renderShopView();
+  alert(`Acquired ${item.name}! Added to your field locker.`);
+}
+
+/* =========================================================================
+   FIELD MANUAL SUB-TABS
+   ========================================================================= */
+
+function switchManualSubTab(tabKey) {
+  document.querySelectorAll(".tab-sub-btn").forEach(b => b.classList.remove("active"));
+  event.target.classList.add("active");
+  renderManualText(tabKey);
+}
+
+function renderManualText(tabKey) {
+  const c = document.getElementById("manual-sub-content");
+  if (tabKey === 'man-species') {
+    c.innerHTML = `
+      <h4>Official Cervidae Taxonomy & Formulas</h4>
+      <p>The Boone and Crockett Club measures antler volume through spread credit, beam length, tine length (G1 through G7), and four circumference mass measurements (H1 through H4).</p>
+      <ul>
+        <li><strong>Whitetail & Mule Deer:</strong> Typical minimums 160" and 190". Rare coats: Piebald (recessive mutation), Melanistic (excess melanin), Albino (absence of tyrosinase).</li>
+        <li><strong>Rocky Mountain Elk:</strong> Scored on 6x6 typical frame with sword points and mass circumferences.</li>
+        <li><strong>Yukon Moose:</strong> Measured by palmation width, inside spread, and tine count across massive shovels.</li>
+      </ul>
+    `;
+  } else if (tabKey === 'man-ballistics') {
+    c.innerHTML = `
+      <h4>Ballistics & Terminal Wound Mechanics</h4>
+      <p>Impact efficiency depends on energy delivery, hydrostatic shock, and pulmonary damage:</p>
+      <ul>
+        <li><strong>Heart / Aorta:</strong> Instant drop in arterial blood pressure. Animal collapses within 25–40 yards.</li>
+        <li><strong>Double Lung:</strong> Bilateral pneumothorax. Bilateral lung collapse in 4–8 seconds with bright frothy sign.</li>
+        <li><strong>High Shoulder / Spine:</strong> High shock shatters scapular blade and severs central spine for an instant drop.</li>
+      </ul>
+    `;
+  } else if (tabKey === 'man-spoor') {
+    c.innerHTML = `
+      <h4>Blood Spoor & Tracking Science</h4>
+      <p>Diagnostic field evaluation:</p>
+      <ul>
+        <li><strong>Bright Pink Frothy with Bubbles:</strong> Bilateral lung hit. Safe to trail after 15 minutes.</li>
+        <li><strong>Deep Burgundy Drops:</strong> Liver hit. Mandatory minimum wait of 45–60 minutes.</li>
+        <li><strong>Watery Green Odorous Fluid:</strong> Paunch hit. Mandatory wait of 6 hours to avoid jumping quarry.</li>
+      </ul>
+    `;
+  } else if (tabKey === 'man-ranch') {
+    c.innerHTML = `
+      <h4>Loans, Leases & Prescribed Burns</h4>
+      <p>Maximizing trophy mass and commercial revenue:</p>
+      <ul>
+        <li><strong>Controlled Fire:</strong> Burns promote tender native forb growth, boosting average live mass by +25 lbs across your wild herd.</li>
+        <li><strong>Commercial Leases:</strong> Day passes and gun clubs generate substantial passive revenue, though excessive gun pressure spooks wild game.</li>
+        <li><strong>Culling Leases:</strong> Youth hunters remove inferior spike bucks, permanently raising the average B&C score of future generations.</li>
+      </ul>
+    `;
+  } else if (tabKey === 'man-genetics') {
+    c.innerHTML = `
+      <h4>Multi-Species Generational Studs</h4>
+      <p>The high-fence breeding industry achieves record antler growth through targeted pairing:</p>
+      <ul>
+        <li><strong>Generational Compounding:</strong> Breeding Gen 1 does with elite sire straws compounds beam length and tine mass into Gen 2 and Gen 3 offspring.</li>
+        <li><strong>Releasing Studs:</strong> Captive monarchs can be turned loose onto wild tracts, elevating the baseline score and weight of all future wild encounters on that property.</li>
+      </ul>
+    `;
+  }
+}
+
+/* =========================================================================
+   GOD MODE CONSOLE & TESTING ENGINE
+   ========================================================================= */
+
+function renderGodModeView() {
+  const specSel = document.getElementById("god-spawn-species");
+  specSel.innerHTML = "";
+  Object.keys(SPECIES_DB).forEach(k => {
+    specSel.innerHTML += `<option value="${k}">${SPECIES_DB[k].name}</option>`;
+  });
+
+  document.getElementById("toggle-god-stealth").innerText = `Ghost Stealth: ${GameState.godMode.stealth ? 'ON (0 dB / 0 yds)' : 'OFF'}`;
+  document.getElementById("toggle-god-aim").innerText = `100% Deadeye Precision: ${GameState.godMode.deadeye ? 'ON' : 'OFF'}`;
+  document.getElementById("toggle-god-spook").innerText = `Freeze Animal Alert: ${GameState.godMode.freezeAlert ? 'ON (0%)' : 'OFF'}`;
+}
+
+function godAddCash(amt) {
+  GameState.cash += amt;
+  autoSave();
+  updateGlobalHeader();
+  alert(`⚡ GOD COMMAND: Added +$${amt.toLocaleString()} to cash balance!`);
+}
+
+function godClearDebt() {
+  GameState.debt = 0;
+  autoSave();
+  updateGlobalHeader();
+  renderFinanceView();
+  alert(`⚡ GOD COMMAND: All bank loans expunged! Debt = $0.`);
+}
+
+function godUnlockAllLand() {
+  PROPERTIES_CATALOG.forEach(cat => {
+    let owned = GameState.ownedProperties.find(p => p.id === cat.id);
+    if (!owned) {
+      owned = {
+        id: cat.id,
+        name: cat.name,
+        acres: cat.acres,
+        region: cat.region,
+        fracked: false,
+        highFenced: true,
+        foodPlots: 2,
+        prescribedBurn: true,
+        timberThinned: true,
+        mineralLicks: true,
+        trailCams: true,
+        geneticScoreBonus: 35,
+        geneticMassBonus: 50,
+        activeLease: "none"
+      };
+      GameState.ownedProperties.push(owned);
+    } else {
+      owned.highFenced = true;
+      owned.foodPlots = 2;
+      owned.prescribedBurn = true;
+      owned.timberThinned = true;
+      owned.mineralLicks = true;
+      owned.trailCams = true;
+      owned.geneticScoreBonus = 35;
+      owned.geneticMassBonus = 50;
+    }
+  });
+  autoSave();
+  updateGlobalHeader();
+  alert(`⚡ GOD COMMAND: All 4 land tracts unlocked with maximum habitat improvements!`);
+}
+
+function godUnlockAllGuns() {
+  GameState.ownedWeapons = Object.keys(WEAPONS_CATALOG);
+  autoSave();
+  alert(`⚡ GOD COMMAND: Every rifle, shotgun, and bow unlocked in locker!`);
+}
+
+function godAddSemenVault() {
+  for (let i = 0; i < 50; i++) {
+    const keys = Object.keys(SPECIES_DB);
+    const k = keys[Math.floor(Math.random() * keys.length)];
+    GameState.semenVault.push({
+      id: "god_straw_" + Date.now() + "_" + i,
+      species: k,
+      sireName: "God Titan " + i,
+      score: 360 + Math.random() * 40,
+      weight: 350 + Math.random() * 500
+    });
+  }
+  autoSave();
+  alert(`⚡ GOD COMMAND: Added 50 legendary semen straws across all breeds to Cryo-Vault!`);
+}
+
+function godToggleStealth() {
+  GameState.godMode.stealth = !GameState.godMode.stealth;
+  renderGodModeView();
+  updateHuntHUD();
+}
+
+function godToggleAim() {
+  GameState.godMode.deadeye = !GameState.godMode.deadeye;
+  renderGodModeView();
+}
+
+function godToggleFreeze() {
+  GameState.godMode.freezeAlert = !GameState.godMode.freezeAlert;
+  if (GameState.godMode.freezeAlert) GameState.alertness = 0;
+  renderGodModeView();
+  updateHuntHUD();
+}
+
+function godAdvanceDays(days) {
+  for (let d = 0; d < days; d++) {
+    GameState.day += 1;
+    processDailyEconomics();
+  }
+  autoSave();
+  updateGlobalHeader();
+  alert(`⚡ GOD COMMAND: Fast-forwarded ${days} days! Economics & maturities processed.`);
+}
+
+function godExecuteCustomSpawn() {
+  const specKey = document.getElementById("god-spawn-species").value;
+  const furChoice = document.getElementById("god-spawn-fur").value;
+  const score = parseFloat(document.getElementById("god-spawn-score").value) || 200;
+  const weight = parseInt(document.getElementById("god-spawn-weight").value) || 250;
+
+  const spec = SPECIES_DB[specKey];
+  let fur = spec.furTypes[0];
+
+  if (furChoice === 'albino') fur = { name: "True Pink-Eyed Albino", rare: true };
+  if (furChoice === 'melanistic') fur = { name: "Melanistic Jet Black", rare: true };
+  if (furChoice === 'piebald') fur = { name: "Piebald Calico Blotched", rare: true };
+  if (furChoice === 'leucistic') fur = { name: "Ghost Leucistic", rare: true };
+
+  let tier = "OFFICIAL ENTRY";
+  if (score >= spec.worldRecord) tier = "WORLD RECORD";
+  else if (score >= spec.nationalRecord) tier = "NATIONAL RECORD";
+  else if (score >= spec.stateRecord) tier = "STATE RECORD";
+
+  const customBeast = {
+    specKey, spec, fur, weight,
+    habitat: spec.habitats[0],
+    score: score,
+    recordTier: tier,
+    points: "6x6 Typical",
+    spread: (specKey === 'moose' ? 62.0 : 25.5),
+    beam: 28.0,
+    targetAngle: "Broadside (Left to Right)"
+  };
+
+  switchView('view-hunt');
+  generateAnimalEncounter(customBeast);
+}
+
+function godRunCommand() {
+  const inp = document.getElementById("god-cli-input");
+  const cmd = inp.value.trim().toLowerCase();
+  inp.value = "";
+  if (!cmd) return;
+
+  const parts = cmd.split(" ");
+  if (parts[0] === "/cash") {
+    godAddCash(parseInt(parts[1]) || 50000);
+  } else if (parts[0] === "/clear_debt") {
+    godClearDebt();
+  } else if (parts[0] === "/godmode") {
+    const on = parts[1] === "on";
+    GameState.godMode.stealth = on;
+    GameState.godMode.deadeye = on;
+    GameState.godMode.freezeAlert = on;
+    renderGodModeView();
+    alert(`⚡ Godmode toggled: ${on ? 'ALL ON' : 'ALL OFF'}`);
+  } else if (parts[0] === "/kill") {
+    if (GameState.quarry) {
+      processShotTerminalResults("high_shoulder");
+      switchView('view-hunt');
+    }
+  } else if (parts[0] === "/skip") {
+    godAdvanceDays(parseInt(parts[1]) || 1);
+  } else {
+    alert("Unknown God CLI command. Available: /cash [amt], /clear_debt, /godmode [on/off], /kill, /skip [days]");
+  }
+}
+
+/* =========================================================================
+   BOOTSTRAP
+   ========================================================================= */
+
+window.addEventListener("DOMContentLoaded", () => {
+  loadFromStorage();
+  updateGlobalHeader();
+  switchView('view-hunt');
+  generateAnimalEncounter();
+});
+</script>
+</body>
+</html>
